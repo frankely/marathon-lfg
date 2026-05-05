@@ -31,13 +31,13 @@ export default async function Home() {
         <h1 className="max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-7xl">
           Form your crew.
           <br />
-          <span className="text-accent">Extract richer.</span>
+          <span className="text-accent">Exfil richer.</span>
         </h1>
 
         <p className="max-w-2xl text-lg leading-relaxed text-muted">
           RUNNER//NET is the unofficial LFG uplink for Marathon. Authenticate
           with your Bungie credentials to surface your Runner identity, broadcast
-          intent, and fill out duos and trios dropping on Tau Ceti IV.
+          contracts, and fill out duos and trios for the next infil into Tau Ceti IV.
         </p>
 
         <div className="flex flex-wrap items-center gap-4">
@@ -48,7 +48,7 @@ export default async function Home() {
                 className="hud-corner group relative inline-flex items-center gap-3 border border-accent bg-accent/10 px-6 py-3 font-mono text-sm tracking-hud text-accent-strong transition hover:bg-accent/20"
               >
                 <span className="size-1.5 rounded-full bg-accent animate-pulse" />
-                OPEN DROP MANIFEST
+                OPEN INFIL BOARD
                 <span className="opacity-60 transition group-hover:translate-x-1">→</span>
               </Link>
               <Link
@@ -61,7 +61,7 @@ export default async function Home() {
                 href="/api/auth/logout"
                 className="font-mono text-xs tracking-hud text-muted hover:text-foreground"
               >
-                [ EXTRACT // LOG OUT ]
+                [ EXFIL // LOG OUT ]
               </a>
             </>
           ) : (
@@ -70,7 +70,7 @@ export default async function Home() {
               className="hud-corner group relative inline-flex items-center gap-3 border border-accent bg-accent/10 px-6 py-3 font-mono text-sm tracking-hud text-accent-strong transition hover:bg-accent/20"
             >
               <span className="size-1.5 rounded-full bg-accent animate-pulse" />
-              INITIATE INSERTION
+              JACK IN — BUNGIE HANDSHAKE
               <span className="opacity-60 transition group-hover:translate-x-1">→</span>
             </a>
           )}
@@ -78,12 +78,21 @@ export default async function Home() {
             BUNGIE.NET // OAUTH HANDSHAKE
           </span>
         </div>
+        {!isAuthed && (
+          <p className="max-w-2xl font-mono text-[10px] leading-relaxed tracking-hud text-muted">
+            By signing in, you authorize RUNNER//NET to read your bungie.net
+            display name, platform memberships, and friend list, and — only
+            when you press <span className="text-accent">CALL INFIL</span> as
+            host — to send bungie.net friend requests on your behalf. Tokens
+            stay in httpOnly cookies and are not sold or shared.
+          </p>
+        )}
 
         <div className="mt-10 grid gap-6 sm:grid-cols-3">
           <Briefing
             tag="// PROTOCOL 01"
-            title="BIOMETRIC SCAN"
-            body="OAuth handshake with bungie.net. We never see your password — only the access uplink."
+            title="SHELL HANDSHAKE"
+            body="OAuth via bungie.net. We never see your password — only the uplink your Runner shell is broadcasting."
           />
           <Briefing
             tag="// PROTOCOL 02"
@@ -93,17 +102,11 @@ export default async function Home() {
           <Briefing
             tag="// PROTOCOL 03"
             title="CREW ASSEMBLY"
-            body="Live: open beacons, +1/+2 fills, host-initiated friend requests on drop. More signal coming."
+            body="Live: open contracts, +1/+2 fills, host-fired friend requests the moment infil is called. More signal coming."
           />
         </div>
       </section>
 
-      <footer className="relative z-10 border-t border-line/80 bg-background/40 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 font-mono text-[10px] tracking-hud text-muted">
-          <span>UNAFFILIATED // FAN PROJECT</span>
-          <span>MARATHON ©BUNGIE</span>
-        </div>
-      </footer>
     </main>
   );
 }

@@ -28,7 +28,7 @@ export default async function LfgBoard() {
             </Link>
           </div>
           <a href="/api/auth/logout" className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground">
-            [ EXTRACT // LOG OUT ]
+            [ EXFIL // LOG OUT ]
           </a>
         </div>
       </header>
@@ -37,26 +37,26 @@ export default async function LfgBoard() {
         <div className="flex items-end justify-between">
           <div>
             <div className="font-mono text-[11px] tracking-hud text-accent">
-              // DROP MANIFEST — OPEN RUNS
+              // INFIL BOARD — OPEN CONTRACTS
             </div>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
-              Active uplinks
+              Open contracts
             </h1>
           </div>
           <Link
             href="/lfg/new"
             className="hud-corner group relative inline-flex items-center gap-2 border border-accent bg-accent/10 px-4 py-2 font-mono text-[11px] tracking-hud text-accent-strong hover:bg-accent/20"
           >
-            POST NEW RUN
+            POST CONTRACT
             <span className="opacity-60 transition group-hover:translate-x-0.5">→</span>
           </Link>
         </div>
 
         {open.length === 0 ? (
           <div className="hud-corner relative border border-line bg-background-elev/60 p-6">
-            <div className="font-mono text-[11px] tracking-hud text-muted">// EMPTY MANIFEST</div>
+            <div className="font-mono text-[11px] tracking-hud text-muted">// BOARD QUIET</div>
             <p className="mt-2 text-sm text-muted">
-              No open runs. Be the first to broadcast a beacon.
+              No open contracts. Post one and route a crew into Tau Ceti IV.
             </p>
           </div>
         ) : (
@@ -70,7 +70,7 @@ export default async function LfgBoard() {
         {initiated.length > 0 && (
           <div className="mt-4">
             <div className="mb-3 font-mono text-[11px] tracking-hud text-signal">
-              // RECENTLY INITIATED — DROPPED
+              // ON INFIL — CREWS EN ROUTE
             </div>
             <ul className="grid gap-3 sm:grid-cols-2">
               {initiated.slice(0, 6).map((lfg) => (
@@ -102,7 +102,7 @@ function LfgCard({ lfg }: { lfg: Awaited<ReturnType<typeof listLfgs>>[number] })
               isOpen ? "border-accent/60 text-accent" : "border-signal/60 text-signal"
             }`}
           >
-            {lfg.status}
+            {lfg.status === "INITIATED" ? "ON INFIL" : lfg.status}
           </span>
         </div>
         {lfg.notes && <p className="line-clamp-2 text-sm text-muted">{lfg.notes}</p>}

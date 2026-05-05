@@ -40,11 +40,11 @@ export default async function LfgDetailPage({ params }: { params: Params }) {
               [ RUNNER//NET ]
             </Link>
             <Link href="/lfg" className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground">
-              ← MANIFEST
+              ← BOARD
             </Link>
           </div>
           <a href="/api/auth/logout" className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground">
-            [ EXTRACT // LOG OUT ]
+            [ EXFIL // LOG OUT ]
           </a>
         </div>
       </header>
@@ -53,7 +53,7 @@ export default async function LfgDetailPage({ params }: { params: Params }) {
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="font-mono text-[11px] tracking-hud text-accent">
-              // BEACON {lfg.id}
+              // CONTRACT {lfg.id}
             </div>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
               {lfg.title}
@@ -67,24 +67,33 @@ export default async function LfgDetailPage({ params }: { params: Params }) {
 
         <div className="hud-corner relative grid grid-cols-3 gap-3 border border-line bg-background-elev/60 p-4 font-mono text-[11px] tracking-hud">
           <Stat label="CREW" value={`${lfg.members.length}/${lfg.capacity}`} highlight={isFull} />
-          <Stat label="OPENED" value={fmtClock(lfg.createdAt)} />
+          <Stat label="POSTED" value={fmtClock(lfg.createdAt)} />
           <Stat
-            label={lfg.initiatedAt ? "INITIATED" : "STATUS"}
-            value={lfg.initiatedAt ? fmtClock(lfg.initiatedAt) : lfg.status}
+            label={lfg.initiatedAt ? "INFIL CALLED" : "STATUS"}
+            value={
+              lfg.initiatedAt
+                ? fmtClock(lfg.initiatedAt)
+                : lfg.status === "INITIATED"
+                  ? "ON INFIL"
+                  : lfg.status
+            }
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           {isHost && lfg.status === "OPEN" && (
-            <form action={initiateLfgAction}>
+            <form action={initiateLfgAction} className="flex flex-col gap-1">
               <input type="hidden" name="id" value={lfg.id} />
               <button
                 type="submit"
                 disabled={!canInitiate}
                 className="hud-corner relative inline-flex items-center gap-2 border border-accent bg-accent/10 px-5 py-2 font-mono text-[11px] tracking-hud text-accent-strong transition hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                INITIATE DROP — SEND FRIEND REQUESTS →
+                CALL INFIL — SEND FRIEND REQUESTS →
               </button>
+              <span className="font-mono text-[10px] tracking-hud text-muted">
+                ⚠ FIRES A BUNGIE.NET FRIEND REQUEST FROM YOU TO EACH GUEST
+              </span>
             </form>
           )}
           {canJoin && (
@@ -94,7 +103,7 @@ export default async function LfgDetailPage({ params }: { params: Params }) {
                 type="submit"
                 className="hud-corner relative inline-flex items-center gap-2 border border-signal/60 bg-signal/10 px-4 py-2 font-mono text-[11px] tracking-hud text-signal hover:bg-signal/20"
               >
-                REQUEST INSERTION →
+                REQUEST SLOT →
               </button>
             </form>
           )}
@@ -105,7 +114,7 @@ export default async function LfgDetailPage({ params }: { params: Params }) {
                 type="submit"
                 className="border border-line px-3 py-2 font-mono text-[11px] tracking-hud text-muted hover:border-danger/60 hover:text-danger"
               >
-                ABORT INSERTION
+                DROP SLOT
               </button>
             </form>
           )}
@@ -116,7 +125,7 @@ export default async function LfgDetailPage({ params }: { params: Params }) {
                 type="submit"
                 className="border border-line px-3 py-2 font-mono text-[11px] tracking-hud text-muted hover:border-danger/60 hover:text-danger"
               >
-                TERMINATE BEACON
+                SCRUB CONTRACT
               </button>
             </form>
           )}
@@ -124,7 +133,7 @@ export default async function LfgDetailPage({ params }: { params: Params }) {
             <span className="font-mono text-[11px] tracking-hud text-warn">CREW AT CAPACITY</span>
           )}
           {lfg.status !== "OPEN" && !me && (
-            <span className="font-mono text-[11px] tracking-hud text-muted">DROP NO LONGER ACCEPTING RUNNERS</span>
+            <span className="font-mono text-[11px] tracking-hud text-muted">CONTRACT CLOSED — NO LONGER RECRUITING</span>
           )}
         </div>
 
@@ -148,11 +157,12 @@ export default async function LfgDetailPage({ params }: { params: Params }) {
         {lfg.status === "INITIATED" && (
           <div className="hud-corner relative border border-signal/40 bg-background-elev/60 p-4">
             <div className="font-mono text-[11px] tracking-hud text-signal">
-              // DROP INITIATED — FRIEND REQUESTS DISPATCHED
+              // INFIL CALLED — FRIEND REQUESTS DISPATCHED
             </div>
             <p className="mt-2 text-sm text-muted">
-              Friend-request status is shown per Runner above. Recipients still need
-              to accept on bungie.net for the link to finalize.
+              Per-Runner request status is logged on the manifest above. Recipients
+              still need to accept on bungie.net for the link to finalize before
+              you queue into a match.
             </p>
           </div>
         )}
