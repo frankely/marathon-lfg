@@ -10,7 +10,13 @@ async function clear(request: NextRequest) {
   cookieStore.delete(COOKIE.expires);
   cookieStore.delete(COOKIE.state);
   await clearIdentityCookie();
-  return NextResponse.redirect(new URL("/", request.nextUrl.origin));
+
+  // Allow ?next=/safe-path so callers (e.g. an expired-token catch handler)
+  // can drop the user straight back into a re-auth instead of bouncing them
+  // through "/". Restricted to same-origin relative paths.
+  const next = request.nextUrl.searchParams.get("next");
+  const target = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  return NextResponse.redirect(new URL(target, request.nextUrl.origin));
 }
 
 export async function GET(request: NextRequest) {

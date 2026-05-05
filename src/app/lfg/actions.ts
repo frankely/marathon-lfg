@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import { sendFriendRequest } from "@/lib/bungie";
+import { BungieAuthError, sendFriendRequest } from "@/lib/bungie";
 import {
   createLfg,
   deleteLfg,
@@ -102,25 +102,36 @@ export async function initiateLfgAction(formData: FormData) {
   if (lfg.status !== "OPEN") throw new Error("Run already initiated");
 
   const guests = lfg.members.filter((m) => m.role === "GUEST");
-  const results = await Promise.all(
-    guests.map(async (g) => {
-      try {
-        const r = await sendFriendRequest(session.accessToken, g.membershipId);
-        if (r.ok) return { membershipId: g.membershipId, ok: true };
-        return {
-          membershipId: g.membershipId,
-          ok: false,
-          error: `HTTP ${r.status}: ${r.error.slice(0, 200)}`,
-        };
-      } catch (e) {
-        return {
-          membershipId: g.membershipId,
-          ok: false,
-          error: e instanceof Error ? e.message : "unknown",
-        };
-      }
-    }),
-  );
+  let results: Array<{ membershipId: string; ok: boolean; error?: string }>;
+  try {
+    results = await Promise.all(
+      guests.map(async (g) => {
+        try {
+          const r = await sendFriendRequest(session.accessToken, g.membershipId);
+          if (r.ok) return { membershipId: g.membershipId, ok: true };
+          return {
+            membershipId: g.membershipId,
+            ok: false,
+            error: `HTTP ${r.status}: ${r.error.slice(0, 200)}`,
+          };
+        } catch (e) {
+          // Bubble auth failures up so we can re-auth instead of recording
+          // a per-guest error and half-initiating the run.
+          if (e instanceof BungieAuthError) throw e;
+          return {
+            membershipId: g.membershipId,
+            ok: false,
+            error: e instanceof Error ? e.message : "unknown",
+          };
+        }
+      }),
+    );
+  } catch (e) {
+    if (e instanceof BungieAuthError) {
+      redirect("/api/auth/logout?next=/api/auth/login");
+    }
+    throw e;
+  }
   await markInitiated(id, results);
   revalidatePath(`/lfg/${id}`);
   revalidatePath("/lfg");
