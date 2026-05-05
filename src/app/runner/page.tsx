@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { COOKIE, getCurrentUser } from "@/lib/bungie";
+import { BungieAuthError, COOKIE, getCurrentUser } from "@/lib/bungie";
 
 const MEMBERSHIP_TYPE_LABELS: Record<number, string> = {
   1: "Xbox",
@@ -38,6 +38,11 @@ export default async function RunnerPage({
   try {
     user = await getCurrentUser(accessToken);
   } catch (e) {
+    if (e instanceof BungieAuthError) {
+      // Token's been rejected by Bungie — clear the stale session and start
+      // a fresh OAuth handshake so the user doesn't see a raw error.
+      redirect("/api/auth/logout?next=/api/auth/login");
+    }
     fetchError = e instanceof Error ? e.message : "Unknown error";
   }
 

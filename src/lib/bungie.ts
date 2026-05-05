@@ -4,6 +4,21 @@ export const BUNGIE_AUTHORIZE_URL = "https://www.bungie.net/en/OAuth/Authorize";
 export const BUNGIE_TOKEN_URL = "https://www.bungie.net/Platform/App/OAuth/Token/";
 export const BUNGIE_API_BASE = "https://www.bungie.net/Platform";
 
+/**
+ * Bungie's "your access token is no longer valid for API calls" signal —
+ * surfaces on the wire as ErrorCode 99 / ErrorStatus "WebAuthRequired".
+ * Common triggers: token expired, user revoked the app, or the API key in
+ * use was issued under a different OAuth client than the access token.
+ * Pages should catch this and route the user back through the OAuth flow
+ * rather than rendering a raw error.
+ */
+export class BungieAuthError extends Error {
+  constructor(public readonly bungieMessage?: string) {
+    super(bungieMessage ?? "Bungie access token rejected");
+    this.name = "BungieAuthError";
+  }
+}
+
 export type BungieTokenResponse = {
   access_token: string;
   token_type: "Bearer";
@@ -97,20 +112,11 @@ export type BungieUserMembershipData = {
   Message: string;
 };
 
-export async function getCurrentUser(accessToken: string): Promise<BungieUserMembershipData> {
-  const { apiKey } = getBungieEnv();
-  const res = await fetch(`${BUNGIE_API_BASE}/User/GetMembershipsForCurrentUser/`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "X-API-Key": apiKey,
-    },
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Bungie user fetch failed (${res.status}): ${text}`);
-  }
-  return (await res.json()) as BungieUserMembershipData;
+export function getCurrentUser(accessToken: string) {
+  return bungieGet<BungieUserMembershipData>(
+    "/User/GetMembershipsForCurrentUser/",
+    accessToken,
+  );
 }
 
 export type BungieFriend = {
@@ -138,6 +144,18 @@ export type BungieFriendListResponse = {
   Message: string;
 };
 
+function isWebAuthRequired(body: string): { yes: boolean; message?: string } {
+  try {
+    const parsed = JSON.parse(body) as { ErrorCode?: number; Message?: string };
+    if (parsed?.ErrorCode === 99) {
+      return { yes: true, message: parsed.Message };
+    }
+  } catch {
+    /* not JSON, fall through */
+  }
+  return { yes: false };
+}
+
 async function bungieGet<T>(path: string, accessToken: string): Promise<T> {
   const { apiKey } = getBungieEnv();
   const res = await fetch(`${BUNGIE_API_BASE}${path}`, {
@@ -149,6 +167,10 @@ async function bungieGet<T>(path: string, accessToken: string): Promise<T> {
   });
   if (!res.ok) {
     const text = await res.text();
+    const webAuth = isWebAuthRequired(text);
+    if (webAuth.yes || res.status === 401) {
+      throw new BungieAuthError(webAuth.message);
+    }
     throw new Error(`Bungie ${path} failed (${res.status}): ${text}`);
   }
   return (await res.json()) as T;
@@ -182,6 +204,10 @@ export async function sendFriendRequest(
   );
   if (!res.ok) {
     const text = await res.text();
+    const webAuth = isWebAuthRequired(text);
+    if (webAuth.yes || res.status === 401) {
+      throw new BungieAuthError(webAuth.message);
+    }
     return { ok: false, status: res.status, error: text };
   }
   return { ok: true };

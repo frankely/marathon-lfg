@@ -3,6 +3,7 @@ import Image from "next/image";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import {
+  BungieAuthError,
   COOKIE,
   ONLINE_STATUS,
   getFriends,
@@ -19,6 +20,15 @@ export default async function FriendsPage() {
     getFriends(accessToken),
     getFriendRequests(accessToken),
   ]);
+
+  // If either call comes back with a Bungie auth rejection, the token is
+  // dead — clear the session and re-auth instead of rendering scope errors.
+  if (
+    (friendsRes.status === "rejected" && friendsRes.reason instanceof BungieAuthError) ||
+    (requestsRes.status === "rejected" && requestsRes.reason instanceof BungieAuthError)
+  ) {
+    redirect("/api/auth/logout?next=/api/auth/login");
+  }
 
   const friends =
     friendsRes.status === "fulfilled" ? friendsRes.value.Response.friends ?? [] : [];
