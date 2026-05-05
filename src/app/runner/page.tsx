@@ -61,26 +61,26 @@ export default async function RunnerPage({
             <span className="font-mono text-xs tracking-hud text-accent">[ RUNNER//NET ]</span>
             <span className="font-mono text-[10px] tracking-hud text-muted">v0.1</span>
           </Link>
-          <Link
+          <a
             href="/api/auth/logout"
             className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground"
           >
-            [ EXTRACT // LOG OUT ]
-          </Link>
+            [ EXFIL // LOG OUT ]
+          </a>
         </div>
       </header>
 
       <section className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-12">
         <div className="flex items-center justify-between">
           <div className="font-mono text-[11px] tracking-hud text-accent">
-            // UPLINK ESTABLISHED — RUNNER PROFILE LOADED
+            // SHELL ONLINE — RUNNER PROFILE LOADED
           </div>
           <div className="flex items-center gap-2">
             <Link
               href="/lfg"
               className="hud-corner group relative inline-flex items-center gap-2 border border-accent bg-accent/10 px-4 py-2 font-mono text-[11px] tracking-hud text-accent-strong transition hover:bg-accent/20"
             >
-              DROP MANIFEST
+              INFIL BOARD
               <span className="opacity-60 transition group-hover:translate-x-0.5">→</span>
             </Link>
             <Link
@@ -194,7 +194,7 @@ function ErrorScreen({ error }: { error: string }) {
         <div className="font-mono text-[11px] tracking-hud text-danger">
           // UPLINK FAILURE
         </div>
-        <h1 className="mt-3 text-2xl font-semibold tracking-tight">Insertion aborted</h1>
+        <h1 className="mt-3 text-2xl font-semibold tracking-tight">Handshake aborted</h1>
         <p className="mt-2 text-sm text-muted">
           The Bungie handshake did not complete. Reason returned by relay:
         </p>
@@ -202,12 +202,12 @@ function ErrorScreen({ error }: { error: string }) {
           {error}
         </pre>
         <div className="mt-5 flex items-center gap-3">
-          <Link
+          <a
             href="/api/auth/login"
             className="border border-accent/60 bg-accent/10 px-4 py-2 font-mono text-xs tracking-hud text-accent-strong hover:bg-accent/20"
           >
-            RETRY INSERTION
-          </Link>
+            RETRY HANDSHAKE
+          </a>
           <Link href="/" className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground">
             [ ABORT ]
           </Link>

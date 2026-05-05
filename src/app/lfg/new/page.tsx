@@ -18,7 +18,7 @@ export default async function NewLfgPage() {
               [ RUNNER//NET ]
             </Link>
             <Link href="/lfg" className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground">
-              ← MANIFEST
+              ← BOARD
             </Link>
           </div>
         </div>
@@ -26,9 +26,9 @@ export default async function NewLfgPage() {
 
       <section className="relative z-10 mx-auto flex w-full max-w-2xl flex-col gap-8 px-6 py-12">
         <div>
-          <div className="font-mono text-[11px] tracking-hud text-accent">// OPEN A NEW BEACON</div>
+          <div className="font-mono text-[11px] tracking-hud text-accent">// POST A NEW INFIL CONTRACT</div>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
-            Broadcast a run
+            Open a contract
           </h1>
           <p className="mt-2 text-sm text-muted">
             Posting as{" "}
@@ -40,7 +40,7 @@ export default async function NewLfgPage() {
                 </span>
               )}
             </span>
-            . Other Runners can request insertion until you initiate the drop.
+            . Other Runners can request a slot until you call infil.
           </p>
         </div>
 
@@ -54,7 +54,7 @@ export default async function NewLfgPage() {
               name="title"
               required
               maxLength={80}
-              placeholder="Trio drop — Tau Ceti perimeter"
+              placeholder="Trio infil — Dire Marsh sweep"
               className="border border-line bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
             />
           </div>
@@ -67,7 +67,7 @@ export default async function NewLfgPage() {
               name="notes"
               maxLength={280}
               rows={3}
-              placeholder="Mic preferred. Stealth comp. Last hour of cycle."
+              placeholder="Mic preferred. Stealth shells. Faction contracts welcome."
               className="resize-none border border-line bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
             />
           </div>
@@ -93,7 +93,7 @@ export default async function NewLfgPage() {
               type="submit"
               className="hud-corner relative inline-flex items-center gap-2 border border-accent bg-accent/10 px-5 py-2 font-mono text-[11px] tracking-hud text-accent-strong hover:bg-accent/20"
             >
-              OPEN BEACON →
+              POST CONTRACT →
             </button>
             <Link href="/lfg" className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground">
               [ ABORT ]

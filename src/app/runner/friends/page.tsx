@@ -59,12 +59,12 @@ export default async function FriendsPage() {
               ← PROFILE
             </Link>
           </div>
-          <Link
+          <a
             href="/api/auth/logout"
             className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground"
           >
             [ EXTRACT // LOG OUT ]
-          </Link>
+          </a>
         </div>
       </header>
 
