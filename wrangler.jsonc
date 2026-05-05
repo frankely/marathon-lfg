@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "marathon-lfg",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-10-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "marathon-lfg-db",
+      "database_id": "cb4733fb-b9a9-4bb5-9a1e-fd9dfd6ae512"
+    }
+  ],
+  "vars": {
+    "BUNGIE_CLIENT_ID": "52137",
+    "BUNGIE_REDIRECT_URI": "https://marathon-lfg.icy-sound-17aa.workers.dev/api/auth/callback"
+  }
+  // Secrets BUNGIE_API_KEY and BUNGIE_CLIENT_SECRET are set with:
+  //   npx wrangler secret put BUNGIE_API_KEY
+  //   npx wrangler secret put BUNGIE_CLIENT_SECRET
+}
