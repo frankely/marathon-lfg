@@ -27,9 +27,9 @@ export default async function LfgBoard() {
               ← PROFILE
             </Link>
           </div>
-          <Link href="/api/auth/logout" className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground">
+          <a href="/api/auth/logout" className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground">
             [ EXTRACT // LOG OUT ]
-          </Link>
+          </a>
         </div>
       </header>
 

@@ -57,22 +57,22 @@ export default async function Home() {
               >
                 RUNNER PROFILE
               </Link>
-              <Link
+              <a
                 href="/api/auth/logout"
                 className="font-mono text-xs tracking-hud text-muted hover:text-foreground"
               >
                 [ EXTRACT // LOG OUT ]
-              </Link>
+              </a>
             </>
           ) : (
-            <Link
+            <a
               href="/api/auth/login"
               className="hud-corner group relative inline-flex items-center gap-3 border border-accent bg-accent/10 px-6 py-3 font-mono text-sm tracking-hud text-accent-strong transition hover:bg-accent/20"
             >
               <span className="size-1.5 rounded-full bg-accent animate-pulse" />
               INITIATE INSERTION
               <span className="opacity-60 transition group-hover:translate-x-1">→</span>
-            </Link>
+            </a>
           )}
           <span className="font-mono text-[11px] tracking-hud text-muted">
             BUNGIE.NET // OAUTH HANDSHAKE

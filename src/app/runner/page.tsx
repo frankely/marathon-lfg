@@ -61,12 +61,12 @@ export default async function RunnerPage({
             <span className="font-mono text-xs tracking-hud text-accent">[ RUNNER//NET ]</span>
             <span className="font-mono text-[10px] tracking-hud text-muted">v0.1</span>
           </Link>
-          <Link
+          <a
             href="/api/auth/logout"
             className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground"
           >
             [ EXTRACT // LOG OUT ]
-          </Link>
+          </a>
         </div>
       </header>
 
@@ -202,12 +202,12 @@ function ErrorScreen({ error }: { error: string }) {
           {error}
         </pre>
         <div className="mt-5 flex items-center gap-3">
-          <Link
+          <a
             href="/api/auth/login"
             className="border border-accent/60 bg-accent/10 px-4 py-2 font-mono text-xs tracking-hud text-accent-strong hover:bg-accent/20"
           >
             RETRY INSERTION
-          </Link>
+          </a>
           <Link href="/" className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground">
             [ ABORT ]
           </Link>
