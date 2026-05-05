@@ -17,7 +17,7 @@
   ],
   "vars": {
     "BUNGIE_CLIENT_ID": "52137",
-    "BUNGIE_REDIRECT_URI": "https://localhost:3000/api/auth/callback"
+    "BUNGIE_REDIRECT_URI": "https://marathon-lfg.icy-sound-17aa.workers.dev/api/auth/callback"
   }
   // Secrets BUNGIE_API_KEY and BUNGIE_CLIENT_SECRET are set with:
   //   npx wrangler secret put BUNGIE_API_KEY
