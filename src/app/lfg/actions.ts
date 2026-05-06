@@ -2,11 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import {
-  getSession,
-  hasReauthMarker,
-  markReauthAttempt,
-} from "@/lib/session";
+import { getSession, hasReauthMarker } from "@/lib/session";
 import { BungieAuthError, sendFriendRequest } from "@/lib/bungie";
 import {
   createLfg,
@@ -136,10 +132,10 @@ export async function initiateLfgAction(formData: FormData) {
       // the host to /runner so they see the diagnostic AuthLoopScreen
       // instead of looping logout → login → callback → action → ...
       if (await hasReauthMarker()) {
+        // Already retried once — bounce to /runner for the diagnostic screen.
         redirect("/runner");
       }
-      await markReauthAttempt();
-      redirect("/api/auth/logout?next=/api/auth/login");
+      redirect("/api/auth/reauth");
     }
     throw e;
   }

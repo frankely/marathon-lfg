@@ -10,7 +10,7 @@ import {
   getFriendRequests,
   type BungieFriend,
 } from "@/lib/bungie";
-import { hasReauthMarker, markReauthAttempt } from "@/lib/session";
+import { hasReauthMarker } from "@/lib/session";
 
 export default async function FriendsPage() {
   const cookieStore = await cookies();
@@ -31,10 +31,13 @@ export default async function FriendsPage() {
     (requestsRes.status === "rejected" && requestsRes.reason instanceof BungieAuthError)
   ) {
     if (await hasReauthMarker()) {
+      // Already retried once and still failing — let /runner render the
+      // diagnostic AuthLoopScreen so the user sees the real cause.
       redirect("/runner");
     }
-    await markReauthAttempt();
-    redirect("/api/auth/logout?next=/api/auth/login");
+    // Server Components can't set cookies — the route handler sets the
+    // marker and starts the re-auth flow.
+    redirect("/api/auth/reauth");
   }
 
   const friends =

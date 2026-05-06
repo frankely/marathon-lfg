@@ -54,27 +54,15 @@ export async function clearIdentityCookie() {
 
 // --- Re-auth loop protection ---
 // We only allow one automatic re-auth round-trip per stale session. If a
-// page sets this marker and we still hit a BungieAuthError on the next
-// render, the failure is config-level (e.g. API key vs client_id mismatch),
-// not session-level — show the user a real error instead of looping.
-
-export async function markReauthAttempt(): Promise<void> {
-  const store = await cookies();
-  store.set(COOKIE.reauthMarker, "1", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 120,
-  });
-}
+// page detects a stale session and the marker is already present, the
+// failure is config-level (e.g. API key vs client_id mismatch), not
+// session-level — show the user a real error instead of looping.
+//
+// The marker is *set* by /api/auth/reauth and *cleared* by an explicit
+// logout (/api/auth/logout without ?next=). Cookie writes can't happen in
+// Server Components, so pages only ever read it via this helper.
 
 export async function hasReauthMarker(): Promise<boolean> {
   const store = await cookies();
   return Boolean(store.get(COOKIE.reauthMarker)?.value);
-}
-
-export async function clearReauthMarker(): Promise<void> {
-  const store = await cookies();
-  store.delete(COOKIE.reauthMarker);
 }
