@@ -3,11 +3,7 @@ import Image from "next/image";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { BungieAuthError, COOKIE, getCurrentUser } from "@/lib/bungie";
-import {
-  clearReauthMarker,
-  hasReauthMarker,
-  markReauthAttempt,
-} from "@/lib/session";
+import { hasReauthMarker } from "@/lib/session";
 
 const MEMBERSHIP_TYPE_LABELS: Record<number, string> = {
   1: "Xbox",
@@ -43,20 +39,21 @@ export default async function RunnerPage({
   let configLoop = false;
   try {
     user = await getCurrentUser(accessToken);
-    // Successful API call — drop any stale loop marker from a prior failure.
-    await clearReauthMarker();
   } catch (e) {
     if (e instanceof BungieAuthError) {
       // If we just came back from a re-auth and Bungie still rejected the
       // *fresh* token, the problem isn't session-level — most likely the
       // BUNGIE_API_KEY and BUNGIE_CLIENT_ID Worker env values come from
       // different Bungie apps. Don't loop again; surface the actual cause.
+      // The marker auto-expires (120s TTL) so future stale-token cases
+      // still get one transparent retry. /api/auth/logout also clears it
+      // explicitly when the user hits CLEAR SESSION.
       if (await hasReauthMarker()) {
         configLoop = true;
-        await clearReauthMarker();
       } else {
-        await markReauthAttempt();
-        redirect("/api/auth/logout?next=/api/auth/login");
+        // Cookie writes aren't allowed in Server Components — delegate to
+        // the route handler that sets the marker and starts re-auth.
+        redirect("/api/auth/reauth");
       }
     } else {
       fetchError = e instanceof Error ? e.message : "Unknown error";
