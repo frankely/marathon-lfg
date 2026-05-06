@@ -3,6 +3,11 @@ import Image from "next/image";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { BungieAuthError, COOKIE, getCurrentUser } from "@/lib/bungie";
+import {
+  clearReauthMarker,
+  hasReauthMarker,
+  markReauthAttempt,
+} from "@/lib/session";
 
 const MEMBERSHIP_TYPE_LABELS: Record<number, string> = {
   1: "Xbox",
@@ -35,17 +40,32 @@ export default async function RunnerPage({
 
   let user;
   let fetchError: string | null = null;
+  let configLoop = false;
   try {
     user = await getCurrentUser(accessToken);
+    // Successful API call — drop any stale loop marker from a prior failure.
+    await clearReauthMarker();
   } catch (e) {
     if (e instanceof BungieAuthError) {
-      // Token's been rejected by Bungie — clear the stale session and start
-      // a fresh OAuth handshake so the user doesn't see a raw error.
-      redirect("/api/auth/logout?next=/api/auth/login");
+      // If we just came back from a re-auth and Bungie still rejected the
+      // *fresh* token, the problem isn't session-level — most likely the
+      // BUNGIE_API_KEY and BUNGIE_CLIENT_ID Worker env values come from
+      // different Bungie apps. Don't loop again; surface the actual cause.
+      if (await hasReauthMarker()) {
+        configLoop = true;
+        await clearReauthMarker();
+      } else {
+        await markReauthAttempt();
+        redirect("/api/auth/logout?next=/api/auth/login");
+      }
+    } else {
+      fetchError = e instanceof Error ? e.message : "Unknown error";
     }
-    fetchError = e instanceof Error ? e.message : "Unknown error";
   }
 
+  if (configLoop) {
+    return <AuthLoopScreen />;
+  }
   if (fetchError || !user) {
     return <ErrorScreen error={fetchError ?? "fetch_failed"} />;
   }
@@ -214,6 +234,68 @@ function ErrorScreen({ error }: { error: string }) {
             RETRY HANDSHAKE
           </a>
           <Link href="/" className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground">
+            [ ABORT ]
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function AuthLoopScreen() {
+  return (
+    <main className="relative flex flex-1 flex-col items-center justify-center px-6">
+      <div className="hud-corner relative w-full max-w-2xl border border-danger/60 bg-background-elev/70 p-6">
+        <div className="font-mono text-[11px] tracking-hud text-danger">
+          // UPLINK REJECTED — RE-AUTH DID NOT HELP
+        </div>
+        <h1 className="mt-3 text-2xl font-semibold tracking-tight">
+          Bungie keeps rejecting this session
+        </h1>
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          We re-ran the OAuth handshake and Bungie returned{" "}
+          <code className="font-mono text-foreground">ErrorCode 99 / WebAuthRequired</code>{" "}
+          on the very next API call. Re-authing again won&apos;t help — the
+          underlying problem is configuration-level.
+        </p>
+        <div className="mt-4 border-l-2 border-accent/60 bg-background/40 p-4 font-mono text-[11px] leading-relaxed tracking-hud text-muted">
+          <div className="text-accent">// MOST LIKELY CAUSES</div>
+          <ul className="mt-2 space-y-1.5">
+            <li>
+              · <span className="text-foreground">BUNGIE_API_KEY</span> on the
+              Worker doesn&apos;t belong to the same Bungie app as{" "}
+              <span className="text-foreground">BUNGIE_CLIENT_ID</span>. Both
+              must come from the same row at{" "}
+              <a
+                href="https://www.bungie.net/en/Application"
+                target="_blank"
+                rel="noreferrer"
+                className="text-signal hover:text-foreground"
+              >
+                bungie.net/Application ↗
+              </a>
+              .
+            </li>
+            <li>
+              · The Bungie app you authed against was deleted or made inactive.
+            </li>
+            <li>
+              · Required scope (<span className="text-foreground">ReadUserData</span>)
+              not enabled on the Bungie app.
+            </li>
+          </ul>
+        </div>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <a
+            href="/api/auth/logout"
+            className="border border-accent/60 bg-accent/10 px-4 py-2 font-mono text-xs tracking-hud text-accent-strong hover:bg-accent/20"
+          >
+            CLEAR SESSION
+          </a>
+          <Link
+            href="/"
+            className="font-mono text-[11px] tracking-hud text-muted hover:text-foreground"
+          >
             [ ABORT ]
           </Link>
         </div>

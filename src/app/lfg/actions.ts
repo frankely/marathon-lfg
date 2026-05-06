@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
+import {
+  getSession,
+  hasReauthMarker,
+  markReauthAttempt,
+} from "@/lib/session";
 import { BungieAuthError, sendFriendRequest } from "@/lib/bungie";
 import {
   createLfg,
@@ -128,6 +132,13 @@ export async function initiateLfgAction(formData: FormData) {
     );
   } catch (e) {
     if (e instanceof BungieAuthError) {
+      // First failure: try one re-auth round-trip. Second failure: route
+      // the host to /runner so they see the diagnostic AuthLoopScreen
+      // instead of looping logout → login → callback → action → ...
+      if (await hasReauthMarker()) {
+        redirect("/runner");
+      }
+      await markReauthAttempt();
       redirect("/api/auth/logout?next=/api/auth/login");
     }
     throw e;
