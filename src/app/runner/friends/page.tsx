@@ -10,6 +10,7 @@ import {
   getFriendRequests,
   type BungieFriend,
 } from "@/lib/bungie";
+import { hasReauthMarker, markReauthAttempt } from "@/lib/session";
 
 export default async function FriendsPage() {
   const cookieStore = await cookies();
@@ -22,11 +23,17 @@ export default async function FriendsPage() {
   ]);
 
   // If either call comes back with a Bungie auth rejection, the token is
-  // dead — clear the session and re-auth instead of rendering scope errors.
+  // dead. Try one auto re-auth; if we already tried, bounce to /runner so
+  // the user lands on the diagnostic AuthLoopScreen instead of an infinite
+  // logout → login → callback → friends → … loop.
   if (
     (friendsRes.status === "rejected" && friendsRes.reason instanceof BungieAuthError) ||
     (requestsRes.status === "rejected" && requestsRes.reason instanceof BungieAuthError)
   ) {
+    if (await hasReauthMarker()) {
+      redirect("/runner");
+    }
+    await markReauthAttempt();
     redirect("/api/auth/logout?next=/api/auth/login");
   }
 

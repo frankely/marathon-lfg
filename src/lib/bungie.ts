@@ -224,4 +224,9 @@ export const COOKIE = {
   access: "mlfg_access",
   membership: "mlfg_membership_id",
   expires: "mlfg_access_expires",
+  // Set right before we trigger an auto re-auth to break a loop. If we land
+  // back on /runner with this still set AND another BungieAuthError, we know
+  // the re-auth didn't help and the underlying problem is config-level.
+  // Survives /api/auth/logout (which only clears the named session cookies).
+  reauthMarker: "mlfg_reauth_attempted",
 } as const;

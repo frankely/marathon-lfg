@@ -54,6 +54,20 @@ jobs:
         # Wrangler reads every file in migrations/, applies only ones not yet
         # recorded in the d1_migrations table, and records each on success.
 
+      - name: Sync Worker secrets from GitHub
+        env:
+          BUNGIE_API_KEY: ${{ secrets.BUNGIE_API_KEY }}
+        run: |
+          if [ -z "$BUNGIE_API_KEY" ]; then
+            echo "::error::BUNGIE_API_KEY GitHub secret is not set. Add it at Settings → Secrets and variables → Actions, then re-run this workflow."
+            exit 1
+          fi
+          # Bulk upload so all Bungie secrets travel together. Add new keys
+          # here and they'll sync on the next deploy.
+          jq -n --arg k "$BUNGIE_API_KEY" '{BUNGIE_API_KEY: $k}' > "$RUNNER_TEMP/secrets.json"
+          npx wrangler secret bulk "$RUNNER_TEMP/secrets.json"
+          rm "$RUNNER_TEMP/secrets.json"
+
       - name: Build & deploy via OpenNext
         id: deploy
         run: |
