@@ -95,11 +95,9 @@ Database is already provisioned: D1 `marathon-lfg-db`
 ### One-time bootstrap
 
 ```bash
-# 1. Set Worker secrets (NOT in .env.local — those are local-only).
-npx wrangler secret put BUNGIE_API_KEY
-npx wrangler secret put BUNGIE_CLIENT_SECRET   # only if Confidential client
-
-# 2. First manual deploy so the Worker exists and you learn its URL:
+# First manual deploy so the Worker exists and you learn its URL.
+# (After this, GitHub Actions will handle every subsequent deploy
+# AND keep the Bungie secrets on the Worker in sync — see below.)
 npm run deploy
 ```
 
@@ -112,26 +110,31 @@ and add the same URL to the Bungie app's Redirect URL list, then push or redeplo
 `.github/workflows/deploy.yml` runs on every push and PR:
 
 - **PRs** → runs `npm ci && npm run build` only (gate, no deploy).
-- **Push to `main`** → builds, applies D1 migrations (idempotent), then runs
-  `opennextjs-cloudflare build && deploy`.
+- **Push to `main`** → builds, applies D1 migrations (idempotent),
+  **syncs the Bungie secret onto the Worker** (`wrangler secret bulk`),
+  then runs `opennextjs-cloudflare build && deploy`.
 
-To wire it up, add two secrets on the GitHub repo
-(*Settings → Secrets and variables → Actions*):
+To wire it up, add three repo secrets at
+*Settings → Secrets and variables → Actions*:
 
 | Secret                  | Value                                                                |
 | ----------------------- | -------------------------------------------------------------------- |
 | `CLOUDFLARE_ACCOUNT_ID` | `bb7c4ae583bb8f22a5234189e32308ee`                                   |
 | `CLOUDFLARE_API_TOKEN`  | A scoped token from <https://dash.cloudflare.com/profile/api-tokens> |
+| `BUNGIE_API_KEY`        | The API key from the Bungie app whose `client_id` is in `wrangler.jsonc` |
 
-The API token needs three permissions on **your account** only (no zone scope
-required):
+The Cloudflare API token needs three permissions on **your account** only
+(no zone scope required):
 
 - *Account → Workers Scripts → Edit*
 - *Account → D1 → Edit*
 - *User → User Details → Read* (so `wrangler whoami` works)
 
-The Bungie secrets stay on the Worker (set with `wrangler secret put`) — they
-never need to be added to GitHub.
+GitHub Secrets are the canonical store — to rotate the Bungie key, update
+the GH secret and push to `main`. CI overwrites the Worker secret to match.
+For a Confidential OAuth client you'd add a `BUNGIE_CLIENT_SECRET` GH
+secret and extend the `jq` payload in the workflow's "Sync Worker secrets"
+step; this app uses a Public client so it's not needed.
 
 If you want a manual run, the workflow has `workflow_dispatch` enabled — just
 hit *Run workflow* on the Actions tab.
