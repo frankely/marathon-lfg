@@ -12,18 +12,18 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     logWarn("oauth_callback_provider_error", { error });
-    return redirectToRunner(request, { error });
+    return redirectAfterAuth(request, { error });
   }
   if (!code || !state) {
     logWarn("oauth_callback_missing_params", { hasCode: !!code, hasState: !!state });
-    return redirectToRunner(request, { error: "missing_code_or_state" });
+    return redirectAfterAuth(request, { error: "missing_code_or_state" });
   }
 
   const cookieStore = await cookies();
   const expectedState = cookieStore.get(COOKIE.state)?.value;
   if (!expectedState || expectedState !== state) {
     logWarn("oauth_callback_state_mismatch", { hasExpected: !!expectedState });
-    return redirectToRunner(request, { error: "state_mismatch" });
+    return redirectAfterAuth(request, { error: "state_mismatch" });
   }
   cookieStore.delete(COOKIE.state);
 
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
   } catch (e) {
     logError("oauth_token_exchange_failed", e);
     const message = e instanceof Error ? e.message : "token_exchange_failed";
-    return redirectToRunner(request, { error: message });
+    return redirectAfterAuth(request, { error: message });
   }
   logInfo("oauth_callback_success", { membershipId: token.membership_id });
 
@@ -79,11 +79,18 @@ export async function GET(request: NextRequest) {
     logWarn("identity_cache_failed", { error: e instanceof Error ? e.message : String(e) });
   }
 
-  return redirectToRunner(request);
+  // Send freshly-authed users straight to the product (the LFG board)
+  // rather than to /runner. Profile is one click away via the header
+  // link; landing on /lfg means the first thing they see is what the
+  // app actually does.
+  return redirectAfterAuth(request);
 }
 
-function redirectToRunner(request: NextRequest, params: Record<string, string> = {}) {
-  const target = new URL("/runner", request.nextUrl.origin);
+function redirectAfterAuth(request: NextRequest, params: Record<string, string> = {}) {
+  // Errors still route to /runner so the existing ErrorScreen /
+  // AuthLoopScreen surface picks them up. Successful flow → /lfg.
+  const path = params.error ? "/runner" : "/lfg";
+  const target = new URL(path, request.nextUrl.origin);
   for (const [k, v] of Object.entries(params)) target.searchParams.set(k, v);
   return NextResponse.redirect(target);
 }

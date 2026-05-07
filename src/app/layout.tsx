@@ -13,9 +13,47 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RUNNER//NET — Marathon LFG",
+  metadataBase: new URL("https://runneruplink.net"),
+  // Per-page generateMetadata can override `title` directly; pages that
+  // set a title use the template here so headers read e.g.
+  // "Open a contract — RUNNER//NET".
+  title: {
+    default: "RUNNER//NET — Marathon LFG",
+    template: "%s — RUNNER//NET",
+  },
   description:
     "Looking-for-Crew uplink for Runners infiling Tau Ceti IV. Form duos and trios, broadcast contracts, exfil richer.",
+  keywords: [
+    "Marathon",
+    "Marathon LFG",
+    "Marathon looking for group",
+    "Bungie Marathon",
+    "Tau Ceti IV",
+    "Runner",
+    "Marathon crew finder",
+    "extraction shooter LFG",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "RUNNER//NET",
+    title: "RUNNER//NET — Marathon LFG",
+    description:
+      "Find a crew. Exfil richer. Looking-for-Crew uplink for Marathon Runners.",
+    url: "https://runneruplink.net",
+  },
+  twitter: {
+    card: "summary",
+    title: "RUNNER//NET — Marathon LFG",
+    description:
+      "Find a crew. Exfil richer. Looking-for-Crew uplink for Marathon Runners.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
