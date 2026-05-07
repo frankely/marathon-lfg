@@ -11,7 +11,8 @@ import { initialsOf } from "@/lib/format";
  */
 
 const TONES = [
-  { border: "border-accent/60", bg: "bg-accent/10", text: "text-accent-strong" },
+  // Host tone — full lime, high contrast (saturated text on faint tint).
+  { border: "border-accent", bg: "bg-accent/15", text: "text-accent" },
   { border: "border-signal/60", bg: "bg-signal/10", text: "text-signal" },
   { border: "border-warn/60", bg: "bg-warn/10", text: "text-warn" },
   { border: "border-foreground/40", bg: "bg-foreground/10", text: "text-foreground" },

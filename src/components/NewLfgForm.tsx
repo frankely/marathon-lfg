@@ -248,14 +248,14 @@ function CapacityChoice({
       <div className="flex items-center gap-2">
         <span
           className={`font-mono text-[11px] tracking-hud ${
-            selected ? "text-accent-strong" : "text-foreground"
+            selected ? "text-black" : "text-foreground"
           }`}
         >
           {label}
         </span>
         <span
           className={`font-mono text-[10px] tracking-hud ${
-            selected ? "text-accent-strong" : "text-muted"
+            selected ? "text-black/70" : "text-muted"
           }`}
         >
           · {fill}
@@ -267,9 +267,11 @@ function CapacityChoice({
             key={i}
             className={`size-2.5 rounded-full border ${
               filled
-                ? "border-accent bg-accent"
+                ? selected
+                  ? "border-black bg-black"
+                  : "border-accent bg-accent"
                 : selected
-                  ? "border-accent/60 bg-transparent"
+                  ? "border-black/60 bg-transparent"
                   : "border-line bg-transparent"
             }`}
           />

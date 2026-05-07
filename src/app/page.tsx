@@ -64,7 +64,7 @@ export default async function Home({
                 href="/lfg"
                 className="hud-corner cta-primary group relative inline-flex items-center gap-3 border px-6 py-3 font-mono text-sm tracking-hud"
               >
-                <span className="size-1.5 rounded-full bg-accent animate-pulse" />
+                <span className="size-1.5 rounded-full bg-black animate-pulse" />
                 OPEN INFIL BOARD
                 <span className="opacity-60 transition group-hover:translate-x-1">→</span>
               </Link>

@@ -1,28 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  /* Backgrounds — kept very dark for the HUD feel, but elev lifted so
-     cards have more separation from the canvas. */
-  --background: #06070b;
-  --background-elev: #10131c;
+  /* Pure-black background to match the high-contrast look that defines
+     extraction-shooter brand pages. background-elev is a near-black
+     used for cards so they have just enough separation from the canvas
+     to read as raised surfaces. */
+  --background: #000000;
+  --background-elev: #0a0a0e;
 
-  /* Foreground stays off-white. Muted shifted slightly cooler so it
-     reads as "lower priority" without disappearing into the line color. */
+  /* Foreground stays off-white. Muted is cool grey for de-prioritized text. */
   --foreground: #e6e8ec;
   --muted: #838996;
 
-  /* Borders bumped from #1c2030 → #262b3d so card edges are actually
-     visible against the new lifted elev background. */
-  --line: #262b3d;
+  /* Card borders. Visible against the near-black elev without being loud. */
+  --line: #232636;
 
-  /* Accent (Marathon orange) punched up half a shade — more saturated,
-     reads as "primary action" more strongly. accent-strong is the hover/
-     focus shade and the gradient endpoint. */
-  --accent: #ff8a2e;
-  --accent-strong: #ffb347;
+  /* Primary accent — acid chartreuse. Distinct from Marathon's exact
+     shade (intentionally — same color family, our own value) but
+     unmistakably in the lime/yellow-green territory that defines the
+     brand's visual identity. accent-strong is the hover/active brightness. */
+  --accent: #c5ff2e;
+  --accent-strong: #d8ff5a;
 
-  /* Signal cyan — keep, slight saturation lift for parity with the
-     warmer accent. */
+  /* Secondary positive color, used sparingly (CONFIRMED member status,
+     "ADD ON BUNGIE.NET" buttons) so the lime carries the primary load
+     and cyan only appears as visual contrast for non-primary positives. */
   --signal: #5fe0e8;
 
   /* Status colors — unchanged. */
@@ -53,10 +55,13 @@ body {
 }
 
 body {
+  /* Subtle lime + dark gradient wash. Tinted toward black; the lime
+     glow is barely there — just enough to keep the canvas from feeling
+     dead. */
   background-image:
-    radial-gradient(1100px 600px at 80% -10%, rgba(255, 122, 26, 0.08), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(95, 208, 216, 0.05), transparent 60%),
-    linear-gradient(180deg, #07080d 0%, #04050a 100%);
+    radial-gradient(1100px 600px at 80% -10%, rgba(197, 255, 46, 0.05), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(95, 224, 232, 0.03), transparent 60%),
+    linear-gradient(180deg, #050507 0%, #000000 100%);
   min-height: 100vh;
 }
 
@@ -79,8 +84,8 @@ body {
 
 .grid-bg {
   background-image:
-    linear-gradient(rgba(255, 122, 26, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 122, 26, 0.06) 1px, transparent 1px);
+    linear-gradient(rgba(197, 255, 46, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(197, 255, 46, 0.05) 1px, transparent 1px);
   background-size: 48px 48px;
   background-position: -1px -1px;
 }
@@ -113,29 +118,32 @@ body {
   letter-spacing: 0.18em;
 }
 
-/* Marathon-styled gradient for primary CTAs — orange → amber, with a
-   subtle inner highlight on hover. Pairs with bg-accent fallbacks for
-   browsers that don't render gradients on borders consistently. */
+/* Primary CTAs — flat-filled acid lime with black text. High-contrast
+   button style that matches the brand-page genre convention for
+   "primary action — click this". Hover lifts to a brighter lime + glow,
+   active depresses 1px. */
 .cta-primary {
-  background-image: linear-gradient(
-    135deg,
-    rgba(255, 122, 26, 0.18) 0%,
-    rgba(255, 179, 71, 0.22) 100%
-  );
+  background-color: var(--accent);
   border-color: var(--accent);
-  color: var(--accent-strong);
-  transition: background-image 200ms ease, transform 100ms ease, box-shadow 200ms ease;
+  color: #000;
+  font-weight: 600;
+  transition: background-color 180ms ease, border-color 180ms ease,
+    transform 100ms ease, box-shadow 200ms ease;
 }
 .cta-primary:hover:not(:disabled) {
-  background-image: linear-gradient(
-    135deg,
-    rgba(255, 138, 46, 0.34) 0%,
-    rgba(255, 179, 71, 0.42) 100%
-  );
-  box-shadow: 0 0 28px -4px rgba(255, 138, 46, 0.45);
+  background-color: var(--accent-strong);
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 28px -2px rgba(197, 255, 46, 0.5);
 }
 .cta-primary:active:not(:disabled) {
   transform: translateY(1px);
+}
+/* Override hud-corner brackets — they default to var(--accent) which
+   would now blend invisibly into the filled-lime button. Use black so
+   they read as cut-corners on the lime fill. */
+.cta-primary.hud-corner::before,
+.cta-primary.hud-corner::after {
+  border-color: #000;
 }
 
 /* Big serial-number style for step indicators ("01", "02", "03") —
@@ -158,5 +166,5 @@ body {
 }
 .card-lift:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px -8px rgba(255, 122, 26, 0.25);
+  box-shadow: 0 6px 20px -8px rgba(197, 255, 46, 0.3);
 }
