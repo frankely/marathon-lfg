@@ -57,14 +57,23 @@ jobs:
       - name: Sync Worker secrets from GitHub
         env:
           BUNGIE_API_KEY: ${{ secrets.BUNGIE_API_KEY }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           if [ -z "$BUNGIE_API_KEY" ]; then
             echo "::error::BUNGIE_API_KEY GitHub secret is not set. Add it at Settings → Secrets and variables → Actions, then re-run this workflow."
             exit 1
           fi
-          # Bulk upload so all Bungie secrets travel together. Add new keys
-          # here and they'll sync on the next deploy.
-          jq -n --arg k "$BUNGIE_API_KEY" '{BUNGIE_API_KEY: $k}' > "$RUNNER_TEMP/secrets.json"
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::CRON_SECRET GitHub secret is not set. Generate one (\`openssl rand -hex 32\`), add it under Settings → Secrets and variables → Actions, then re-run."
+            exit 1
+          fi
+          # Bulk upload so all secrets travel together. Add new keys here
+          # and they'll sync on the next deploy.
+          jq -n \
+            --arg bungie "$BUNGIE_API_KEY" \
+            --arg cron "$CRON_SECRET" \
+            '{BUNGIE_API_KEY: $bungie, CRON_SECRET: $cron}' \
+            > "$RUNNER_TEMP/secrets.json"
           npx wrangler secret bulk "$RUNNER_TEMP/secrets.json"
           rm "$RUNNER_TEMP/secrets.json"
 

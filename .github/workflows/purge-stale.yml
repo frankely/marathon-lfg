@@ -1,0 +1,53 @@
+name: Purge stale contracts
+
+on:
+  schedule:
+    # Every 6 hours. Cron is UTC.
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      ageHours:
+        description: "Delete contracts older than this many hours (1-168)"
+        required: false
+        default: "24"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: purge-stale
+  cancel-in-progress: false
+
+jobs:
+  purge:
+    name: Hit /api/admin/purge-stale
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: POST to purge endpoint
+        env:
+          BASE_URL: ${{ vars.PROD_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          AGE_HOURS: ${{ inputs.ageHours || '24' }}
+        run: |
+          if [ -z "$BASE_URL" ]; then
+            echo "::error::PROD_BASE_URL repository variable is not set."
+            echo "::error::Set it at Settings → Secrets and variables → Actions → Variables."
+            echo "::error::Example: https://marathon-lfg.icy-sound-17aa.workers.dev"
+            exit 1
+          fi
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::CRON_SECRET repository secret is not set."
+            echo "::error::Generate one (e.g. \`openssl rand -hex 32\`), add it as a GH secret AND a Worker secret (\`wrangler secret put CRON_SECRET\`)."
+            exit 1
+          fi
+          response=$(curl -sS -w "\n%{http_code}" -X POST \
+            "${BASE_URL}/api/admin/purge-stale?ageHours=${AGE_HOURS}" \
+            -H "Authorization: Bearer ${CRON_SECRET}")
+          body=$(echo "$response" | sed '$d')
+          status=$(echo "$response" | tail -n1)
+          echo "HTTP $status: $body"
+          if [ "$status" != "200" ]; then
+            echo "::error::Purge endpoint returned HTTP $status"
+            exit 1
+          fi
