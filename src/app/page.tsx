@@ -40,18 +40,18 @@ export default async function Home({
         </div>
       </header>
 
-      <section className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-start justify-center gap-10 px-6 py-20">
-        <div className="font-mono text-[11px] tracking-hud text-accent">
+      <section className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-start justify-center gap-10 px-6 py-24 sm:py-28">
+        <div className="font-mono text-xs tracking-hud text-accent">
           // INCOMING TRANSMISSION — UESC RUNNER NETWORK
         </div>
 
-        <h1 className="max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-7xl">
+        <h1 className="max-w-4xl text-6xl font-semibold leading-[1.02] tracking-tight text-foreground sm:text-8xl">
           Form your crew.
           <br />
           <span className="text-accent">Exfil richer.</span>
         </h1>
 
-        <p className="max-w-2xl text-lg leading-relaxed text-muted">
+        <p className="max-w-2xl text-xl leading-relaxed text-muted">
           RUNNER//NET is the unofficial LFG uplink for Marathon. Authenticate
           with your Bungie credentials to surface your Runner identity, broadcast
           contracts, and fill out duos and trios for the next infil into Tau Ceti IV.
@@ -105,14 +105,14 @@ export default async function Home({
           </p>
         )}
 
-        <div className="mt-10 w-full">
-          <div className="font-mono text-[11px] tracking-hud text-accent">
+        <div className="mt-12 w-full">
+          <div className="font-mono text-xs tracking-hud text-accent">
             // HOW IT WORKS
           </div>
-          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             Three steps from solo to a full crew
           </h2>
-          <ol className="mt-6 grid gap-4 sm:grid-cols-3">
+          <ol className="mt-8 grid gap-5 sm:grid-cols-3">
             <Step
               n="01"
               title="JACK IN"
@@ -138,17 +138,17 @@ export default async function Home({
 
 function Step({ n, title, body }: { n: string; title: string; body: string }) {
   return (
-    <li className="hud-corner card-lift relative border border-line bg-background-elev/60 p-5">
+    <li className="hud-corner card-lift relative border border-line bg-background-elev/60 p-6">
       <div className="flex items-start justify-between">
         <span className="serial-number">{n}</span>
-        <span className="mt-2 font-mono text-[10px] tracking-hud text-muted">
+        <span className="mt-3 font-mono text-[11px] tracking-hud text-muted">
           STEP
         </span>
       </div>
-      <div className="mt-3 font-mono text-sm tracking-hud text-foreground">
+      <div className="mt-4 font-mono text-base tracking-hud text-foreground">
         {title}
       </div>
-      <p className="mt-3 text-sm leading-relaxed text-muted">{body}</p>
+      <p className="mt-3 text-base leading-relaxed text-muted">{body}</p>
     </li>
   );
 }

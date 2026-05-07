@@ -38,7 +38,11 @@ export function Avatar({
   // Hosts always get the accent (orange) tone for instant visual identification.
   const tone = isHost ? TONES[0] : toneFor(seed);
   const sizeClass =
-    size === "sm" ? "size-7 text-[10px]" : size === "lg" ? "size-12 text-sm" : "size-9 text-xs";
+    size === "sm"
+      ? "size-8 text-[10px]"
+      : size === "lg"
+        ? "size-14 text-base"
+        : "size-10 text-xs";
 
   return (
     <span

@@ -29,13 +29,13 @@ export default async function OnboardingBanner() {
   }
 
   return (
-    <div className="hud-corner relative border border-signal/60 bg-background-elev/60 p-5">
+    <div className="hud-corner relative border border-signal/60 bg-background-elev/60 p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-3">
-          <div className="font-mono text-[11px] tracking-hud text-signal">
+          <div className="font-mono text-xs tracking-hud text-signal">
             // FIRST TIME ON THE BOARD?
           </div>
-          <p className="text-sm leading-relaxed text-foreground">
+          <p className="text-base leading-relaxed text-foreground">
             Each card below is a crew assembling for an infil into Tau Ceti
             IV. Click one to see the manifest and{" "}
             <span className="text-signal">request a slot</span>, or hit{" "}

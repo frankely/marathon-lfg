@@ -1,14 +1,31 @@
 @import "tailwindcss";
 
 :root {
+  /* Backgrounds — kept very dark for the HUD feel, but elev lifted so
+     cards have more separation from the canvas. */
   --background: #06070b;
-  --background-elev: #0c0e14;
+  --background-elev: #10131c;
+
+  /* Foreground stays off-white. Muted shifted slightly cooler so it
+     reads as "lower priority" without disappearing into the line color. */
   --foreground: #e6e8ec;
-  --muted: #8a8f9a;
-  --line: #1c2030;
-  --accent: #ff7a1a;
+  --muted: #838996;
+
+  /* Borders bumped from #1c2030 → #262b3d so card edges are actually
+     visible against the new lifted elev background. */
+  --line: #262b3d;
+
+  /* Accent (Marathon orange) punched up half a shade — more saturated,
+     reads as "primary action" more strongly. accent-strong is the hover/
+     focus shade and the gradient endpoint. */
+  --accent: #ff8a2e;
   --accent-strong: #ffb347;
-  --signal: #5fd0d8;
+
+  /* Signal cyan — keep, slight saturation lift for parity with the
+     warmer accent. */
+  --signal: #5fe0e8;
+
+  /* Status colors — unchanged. */
   --warn: #ffd166;
   --danger: #ef4d4d;
 }
@@ -112,25 +129,25 @@ body {
 .cta-primary:hover:not(:disabled) {
   background-image: linear-gradient(
     135deg,
-    rgba(255, 122, 26, 0.32) 0%,
-    rgba(255, 179, 71, 0.38) 100%
+    rgba(255, 138, 46, 0.34) 0%,
+    rgba(255, 179, 71, 0.42) 100%
   );
-  box-shadow: 0 0 24px -4px rgba(255, 122, 26, 0.4);
+  box-shadow: 0 0 28px -4px rgba(255, 138, 46, 0.45);
 }
 .cta-primary:active:not(:disabled) {
   transform: translateY(1px);
 }
 
 /* Big serial-number style for step indicators ("01", "02", "03") —
-   thin outline numerals reminiscent of Marathon's marketing typography. */
+   thin outline numerals reminiscent of Marathon's marketing typography.
+   Larger + tighter tracking so they read as a graphic, not body text. */
 .serial-number {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 3rem;
+  font-size: 4.5rem;
   font-weight: 200;
-  line-height: 1;
-  letter-spacing: -0.05em;
-  color: var(--accent);
-  -webkit-text-stroke: 1px var(--accent);
+  line-height: 0.85;
+  letter-spacing: -0.06em;
+  -webkit-text-stroke: 1.5px var(--accent);
   color: transparent;
 }
 

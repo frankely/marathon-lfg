@@ -256,7 +256,7 @@ function LfgCard({ lfg }: { lfg: Awaited<ReturnType<typeof listLfgs>>[number] })
     <li>
       <Link
         href={`/lfg/${lfg.id}`}
-        className="hud-corner card-lift relative flex flex-col gap-3 border border-line bg-background-elev/60 p-4 hover:border-accent/60 hover:bg-background-elev"
+        className="hud-corner card-lift relative flex flex-col gap-4 border border-line bg-background-elev/60 p-5 hover:border-accent/60 hover:bg-background-elev"
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-1 items-center gap-3">

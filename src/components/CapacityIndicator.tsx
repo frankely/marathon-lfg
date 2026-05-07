@@ -24,7 +24,7 @@ export function CapacityIndicator({
   for (let i = 0; i < pending; i++) dots.push("pending");
   for (let i = dots.length; i < capacity; i++) dots.push("empty");
 
-  const dotSize = size === "lg" ? "size-3" : "size-2";
+  const dotSize = size === "lg" ? "size-3.5" : "size-2.5";
 
   return (
     <span

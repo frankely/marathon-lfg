@@ -103,7 +103,7 @@ export default async function LfgDetailPage({ params }: { params: Params }) {
               {lfg.title}
             </h1>
             {lfg.notes && (
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">{lfg.notes}</p>
+              <p className="mt-3 max-w-2xl text-base leading-relaxed text-foreground/80">{lfg.notes}</p>
             )}
           </div>
           <StatusBadge status={lfg.status} />
@@ -251,7 +251,7 @@ function NextStepPanel({
   if (lfg.status === "INITIATED") {
     return (
       <Panel tone="signal" tag="// NEXT — ADD CREW ON BUNGIE.NET">
-        <p className="text-sm leading-relaxed text-foreground">
+        <p className="text-base leading-relaxed text-foreground">
           {isHost ? "You called infil." : "Host called infil."} Now add each
           Runner below as a friend on bungie.net using the{" "}
           <span className="text-signal">ADD ↗</span> button. Once they accept,
@@ -269,7 +269,7 @@ function NextStepPanel({
   if (lfg.status === "CLOSED") {
     return (
       <Panel tone="muted" tag="// CONTRACT CLOSED">
-        <p className="text-sm text-muted">
+        <p className="text-base text-muted">
           This contract has been terminated. Head back to the{" "}
           <Link href="/lfg" className="text-accent hover:text-accent-strong">
             board
@@ -285,7 +285,7 @@ function NextStepPanel({
     if (canInitiate && isFull) {
       return (
         <Panel tone="accent" tag="// READY — CREW IS FULL">
-          <p className="text-sm leading-relaxed text-foreground">
+          <p className="text-base leading-relaxed text-foreground">
             Crew at capacity. Hit{" "}
             <span className="text-accent-strong">CALL INFIL</span> below to
             lock the manifest — you&apos;ll then add each Runner on
@@ -298,7 +298,7 @@ function NextStepPanel({
       const need = lfg.capacity - lfg.members.length;
       return (
         <Panel tone="accent" tag="// HOSTING — WAITING ON RUNNERS">
-          <p className="text-sm leading-relaxed text-foreground">
+          <p className="text-base leading-relaxed text-foreground">
             You have {lfg.members.length - 1}{" "}
             {lfg.members.length - 1 === 1 ? "Runner" : "Runners"} on the
             manifest, looking for {need} more. You can{" "}
@@ -311,7 +311,7 @@ function NextStepPanel({
     // Host with no guests yet
     return (
       <Panel tone="accent" tag="// HOSTING — SHARE THIS PAGE">
-        <p className="text-sm leading-relaxed text-foreground">
+        <p className="text-base leading-relaxed text-foreground">
           No Runners yet. The contract is live on the{" "}
           <Link href="/lfg" className="text-accent hover:text-accent-strong">
             board
@@ -328,7 +328,7 @@ function NextStepPanel({
   if (me) {
     return (
       <Panel tone="warn" tag="// YOU'RE ON THE MANIFEST — STANDBY">
-        <p className="text-sm leading-relaxed text-foreground">
+        <p className="text-base leading-relaxed text-foreground">
           You&apos;re slotted as <span className="text-warn">PENDING</span>.
           Once{" "}
           <span className="text-foreground">{host?.displayName ?? "the host"}</span>{" "}
@@ -347,7 +347,7 @@ function NextStepPanel({
   if (canJoin) {
     return (
       <Panel tone="signal" tag="// JOIN THIS CREW">
-        <p className="text-sm leading-relaxed text-foreground">
+        <p className="text-base leading-relaxed text-foreground">
           Hit <span className="text-signal">REQUEST SLOT</span> below to add
           yourself to the manifest. You&apos;ll show as PENDING until{" "}
           <span className="text-foreground">{host?.displayName ?? "the host"}</span>{" "}
@@ -361,7 +361,7 @@ function NextStepPanel({
   // Full or otherwise can't join
   return (
     <Panel tone="warn" tag="// CREW AT CAPACITY">
-      <p className="text-sm text-muted">
+      <p className="text-base text-muted">
         This {lfg.capacity === 2 ? "duo" : "trio"} is full. Try the{" "}
         <Link href="/lfg" className="text-accent hover:text-accent-strong">
           board
@@ -398,9 +398,9 @@ function Panel({
           ? "text-warn"
           : "text-muted";
   return (
-    <div className={`hud-corner relative border ${border} bg-background-elev/70 p-5`}>
-      <div className={`font-mono text-[11px] tracking-hud ${tagColor}`}>{tag}</div>
-      <div className="mt-2">{children}</div>
+    <div className={`hud-corner relative border ${border} bg-background-elev/70 p-6`}>
+      <div className={`font-mono text-xs tracking-hud ${tagColor}`}>{tag}</div>
+      <div className="mt-3 text-base leading-relaxed">{children}</div>
     </div>
   );
 }
