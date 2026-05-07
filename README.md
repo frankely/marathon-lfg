@@ -118,9 +118,13 @@ Database is already provisioned: D1 `marathon-lfg-db`
 npm run deploy
 ```
 
-After the first deploy, update `BUNGIE_REDIRECT_URI` in `wrangler.jsonc` to
-your Worker's URL (e.g. `https://marathon-lfg.<subdomain>.workers.dev/api/auth/callback`)
-and add the same URL to the Bungie app's Redirect URL list, then push or redeploy.
+After the first deploy, point a custom domain at the Worker (or use the
+auto-assigned `*.workers.dev` URL), then update `BUNGIE_REDIRECT_URI` in
+`wrangler.jsonc` to `https://<your-domain>/api/auth/callback` and add the
+same URL to the Bungie app's Redirect URL list. Push or redeploy.
+
+This project's production URL is **<https://runneruplink.net>** — bound
+to the Worker via the `routes` block in `wrangler.jsonc`.
 
 ### Automated deploys (GitHub Actions)
 
@@ -145,7 +149,7 @@ To wire it up, add three repo secrets at
 
 | Variable        | Value                                                                                       |
 | --------------- | ------------------------------------------------------------------------------------------- |
-| `PROD_BASE_URL` | Your Worker URL, e.g. `https://marathon-lfg.icy-sound-17aa.workers.dev` (no trailing slash) |
+| `PROD_BASE_URL` | The site's public URL — `https://runneruplink.net` (no trailing slash). Used by the scheduled-purge workflow to know where to POST. |
 
 The Cloudflare API token needs three permissions on **your account** only
 (no zone scope required):
