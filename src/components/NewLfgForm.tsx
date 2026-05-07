@@ -20,6 +20,25 @@ const QUICK_TAGS = [
   { id: "loot", label: "LOOT FOCUS", prefix: "[LOOT]" },
 ] as const;
 
+// Marathon Runner shells a host can request on their crew. Same
+// toggle-prefix behavior as QUICK_TAGS — clicking inserts e.g.
+// "[VANDAL]" into the briefing so guests can see at a glance what
+// comp the host wants.
+//
+// Source: marathongame.fandom.com/wiki/Runner — the article's "List"
+// section under Gameplay enumerates six crew-playable shells at launch.
+// Several were renamed late in development; we use the current launch
+// names. Rook is intentionally excluded — it's the solo scavenger
+// mode, not a crew-fillable shell.
+const SHELL_TAGS: ReadonlyArray<{ id: string; label: string; prefix: string }> = [
+  { id: "recon", label: "RECON", prefix: "[RECON]" },
+  { id: "destroyer", label: "DESTROYER", prefix: "[DESTROYER]" },
+  { id: "vandal", label: "VANDAL", prefix: "[VANDAL]" },
+  { id: "thief", label: "THIEF", prefix: "[THIEF]" },
+  { id: "assassin", label: "ASSASSIN", prefix: "[ASSASSIN]" },
+  { id: "triage", label: "TRIAGE", prefix: "[TRIAGE]" },
+];
+
 export default function NewLfgForm({
   hostName,
   hostCode,
@@ -149,6 +168,37 @@ export default function NewLfgForm({
               );
             })}
           </div>
+          {/* Shells the host wants on the crew. Visually distinct from
+              QUICK_TAGS — uses signal/cyan tone so guests can tell at a
+              glance "this row = comp the host wants" vs the warm-lime row
+              of generic vibe tags above. Only renders when there are
+              actually shells seeded — see SHELL_TAGS comment for why. */}
+          {SHELL_TAGS.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+              <span className="mr-1 font-mono text-[10px] tracking-hud text-muted">
+                SHELLS WANTED:
+              </span>
+              {SHELL_TAGS.map((t) => {
+                const active = isTagActive(t.prefix);
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => toggleTag(t.prefix)}
+                    aria-pressed={active}
+                    className={`border px-2 py-0.5 font-mono text-[10px] tracking-hud transition ${
+                      active
+                        ? "border-signal bg-signal/15 text-signal"
+                        : "border-line text-muted hover:border-signal/60 hover:text-foreground"
+                    }`}
+                  >
+                    {active ? "✓ " : "+ "}
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Capacity — visual radio cards instead of a dropdown */}
