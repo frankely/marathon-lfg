@@ -81,29 +81,37 @@ export default async function Home() {
         {!isAuthed && (
           <p className="max-w-2xl font-mono text-[10px] leading-relaxed tracking-hud text-muted">
             By signing in, you authorize RUNNER//NET to read your bungie.net
-            display name, platform memberships, and friend list, and — only
-            when you press <span className="text-accent">CALL INFIL</span> as
-            host — to send bungie.net friend requests on your behalf. Tokens
-            stay in httpOnly cookies and are not sold or shared.
+            display name, platform memberships, and friend list. We never
+            send messages or friend requests on your behalf — friending the
+            crew is a one-click handoff to bungie.net you do yourself.
+            Tokens stay in httpOnly cookies and are not sold or shared.
           </p>
         )}
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-3">
-          <Briefing
-            tag="// PROTOCOL 01"
-            title="SHELL HANDSHAKE"
-            body="OAuth via bungie.net. We never see your password — only the uplink your Runner shell is broadcasting."
-          />
-          <Briefing
-            tag="// PROTOCOL 02"
-            title="RUNNER ID"
-            body="Pull your Bungie display name and platform memberships. The basis of every crew manifest."
-          />
-          <Briefing
-            tag="// PROTOCOL 03"
-            title="CREW ASSEMBLY"
-            body="Live: open contracts, +1/+2 fills, host-fired friend requests the moment infil is called. More signal coming."
-          />
+        <div className="mt-10 w-full">
+          <div className="font-mono text-[11px] tracking-hud text-accent">
+            // HOW IT WORKS
+          </div>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
+            Three steps from solo to a full crew
+          </h2>
+          <ol className="mt-6 grid gap-4 sm:grid-cols-3">
+            <Step
+              n="01"
+              title="JACK IN"
+              body="Sign in with your Bungie account so we can pull your Runner ID. We never see your password — bungie.net handles the handshake."
+            />
+            <Step
+              n="02"
+              title="JOIN OR POST"
+              body="Browse open contracts on the infil board and request a slot, or post your own duo / trio for other Runners to fill."
+            />
+            <Step
+              n="03"
+              title="ADD ON BUNGIE.NET"
+              body="When the host calls infil, click ADD ↗ next to each Runner — opens their bungie.net profile so you can friend them in one click. Then launch Marathon and invite them to your fireteam."
+            />
+          </ol>
         </div>
       </section>
 
@@ -111,12 +119,14 @@ export default async function Home() {
   );
 }
 
-function Briefing({ tag, title, body }: { tag: string; title: string; body: string }) {
+function Step({ n, title, body }: { n: string; title: string; body: string }) {
   return (
-    <div className="hud-corner relative border border-line bg-background-elev/60 p-5">
-      <div className="font-mono text-[10px] tracking-hud text-accent">{tag}</div>
-      <div className="mt-3 font-mono text-sm tracking-hud text-foreground">{title}</div>
-      <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
-    </div>
+    <li className="hud-corner relative border border-line bg-background-elev/60 p-5">
+      <div className="flex items-baseline gap-3">
+        <span className="font-mono text-2xl text-accent">{n}</span>
+        <span className="font-mono text-sm tracking-hud text-foreground">{title}</span>
+      </div>
+      <p className="mt-3 text-sm leading-relaxed text-muted">{body}</p>
+    </li>
   );
 }

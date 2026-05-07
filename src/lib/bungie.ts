@@ -184,33 +184,15 @@ export function getFriendRequests(accessToken: string) {
   return bungieGet<BungieFriendListResponse>("/Social/Friends/Requests/", accessToken);
 }
 
-export async function sendFriendRequest(
-  accessToken: string,
-  targetMembershipId: string,
-): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
-  const { apiKey } = getBungieEnv();
-  const res = await fetch(
-    `${BUNGIE_API_BASE}/Social/Friends/Add/${encodeURIComponent(targetMembershipId)}/`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "X-API-Key": apiKey,
-        "Content-Type": "application/json",
-      },
-      body: "{}",
-      cache: "no-store",
-    },
-  );
-  if (!res.ok) {
-    const text = await res.text();
-    const webAuth = isWebAuthRequired(text);
-    if (webAuth.yes || res.status === 401) {
-      throw new BungieAuthError(webAuth.message);
-    }
-    return { ok: false, status: res.status, error: text };
-  }
-  return { ok: true };
+/**
+ * Build a bungie.net profile URL for a Runner. Host opens this in a new tab
+ * and clicks "Add Friend" there — we can't issue friend requests via API
+ * because POST /Social/Friends/Add requires the BnetWrite scope, which is
+ * reserved for Bungie's first-party apps and not available to third-party
+ * developers (per Bungie's own OpenAPI spec).
+ */
+export function bungieProfileUrl(membershipId: string): string {
+  return `https://www.bungie.net/en/User/Profile/254/${encodeURIComponent(membershipId)}`;
 }
 
 export const ONLINE_STATUS: Record<number, { label: string; tone: "on" | "idle" | "off" }> = {

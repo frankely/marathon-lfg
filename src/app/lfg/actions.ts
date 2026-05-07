@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getSession, hasReauthMarker } from "@/lib/session";
-import { BungieAuthError, sendFriendRequest } from "@/lib/bungie";
+import { getSession } from "@/lib/session";
 import {
   createLfg,
   deleteLfg,
@@ -101,45 +100,7 @@ export async function initiateLfgAction(formData: FormData) {
   }
   if (lfg.status !== "OPEN") throw new Error("Run already initiated");
 
-  const guests = lfg.members.filter((m) => m.role === "GUEST");
-  let results: Array<{ membershipId: string; ok: boolean; error?: string }>;
-  try {
-    results = await Promise.all(
-      guests.map(async (g) => {
-        try {
-          const r = await sendFriendRequest(session.accessToken, g.membershipId);
-          if (r.ok) return { membershipId: g.membershipId, ok: true };
-          return {
-            membershipId: g.membershipId,
-            ok: false,
-            error: `HTTP ${r.status}: ${r.error.slice(0, 200)}`,
-          };
-        } catch (e) {
-          // Bubble auth failures up so we can re-auth instead of recording
-          // a per-guest error and half-initiating the run.
-          if (e instanceof BungieAuthError) throw e;
-          return {
-            membershipId: g.membershipId,
-            ok: false,
-            error: e instanceof Error ? e.message : "unknown",
-          };
-        }
-      }),
-    );
-  } catch (e) {
-    if (e instanceof BungieAuthError) {
-      // First failure: try one re-auth round-trip. Second failure: route
-      // the host to /runner so they see the diagnostic AuthLoopScreen
-      // instead of looping logout → login → callback → action → ...
-      if (await hasReauthMarker()) {
-        // Already retried once — bounce to /runner for the diagnostic screen.
-        redirect("/runner");
-      }
-      redirect("/api/auth/reauth");
-    }
-    throw e;
-  }
-  await markInitiated(id, results);
+  await markInitiated(id);
   revalidatePath(`/lfg/${id}`);
   revalidatePath("/lfg");
 }

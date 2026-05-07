@@ -7,9 +7,9 @@ Bungie OAuth as the front door, Cloudflare Workers + D1 as the runtime.
 
 - **Phase 1 — Auth + identity.** Bungie OAuth handshake, runner profile,
   bungie.net friend list. ✅
-- **Phase 2 — LFG board.** Hosts post runs, guests request insertion,
-  pending → confirmed on host initiate, friend requests auto-fired to the
-  whole crew on initiate. ✅
+- **Phase 2 — LFG board.** Hosts post infil contracts, guests request a slot,
+  pending → confirmed on host calling infil, then a one-click manual friend
+  handoff per Runner via bungie.net. ✅
 
 ## Stack
 
@@ -29,8 +29,11 @@ edit app **52137**:
 - **Redirect URL** → `https://localhost:3000/api/auth/callback`
 - **Scope** → enable *"Access items like your Bungie.net notifications,
   memberships, and recent Bungie.Net forum activity."* This is the
-  `ReadUserData` scope; it's required for `/Social/Friends/` and for sending
-  friend requests.
+  `ReadUserData` scope; required for `/Social/Friends/` (so we can render
+  the user's contact registry on `/runner/friends`). Note: programmatic
+  friend-add is *not* available — Bungie reserves `BnetWrite` for first-party
+  apps. The site instead deep-links to each Runner's bungie.net profile so
+  the user adds them with one click on bungie.net itself.
 
 ### 2. Local env
 
@@ -76,16 +79,26 @@ npm run preview              # OpenNext local preview with bindings
 
 ## LFG flow
 
-1. Host opens a new run (`/lfg/new`) — picks crew size 2/3/4, title, optional briefing.
-2. The run lands on `/lfg` for everyone. Guests click **REQUEST INSERTION** —
-   they're added immediately as `PENDING`.
-3. Host can **EXTRACT** (kick) any guest while the run is `OPEN`.
-4. Host clicks **INITIATE DROP**. The server fires a Bungie
-   `POST /Social/Friends/Add/{membershipId}` to every guest's bungie.net ID,
-   marks all guests `CONFIRMED`, and stamps the run as `INITIATED`. Per-guest
-   send results are stored on the run and rendered on the detail page.
-5. **TERMINATE BEACON** deletes the run; guests leaving with **ABORT
-   INSERTION** just remove themselves.
+1. Host opens a new contract (`/lfg/new`) — picks DUO (+1) or TRIO (+2),
+   title, optional briefing.
+2. The contract appears on the `/lfg` board for every signed-in Runner.
+   Guests click **REQUEST SLOT** — they're added immediately as `PENDING`.
+3. Host can **EJECT** any guest while the contract is `OPEN`.
+4. Host clicks **CALL INFIL — LOCK CREW**. The contract flips to
+   `INITIATED`, all guests flip to `CONFIRMED`, and the detail page
+   surfaces an **ADD ON BUNGIE.NET ↗** button next to every Runner. Each
+   button opens that Runner's bungie.net profile in a new tab; the host
+   (and each guest) click "Add Friend" once per Runner.
+5. Once friend requests are accepted, everyone launches Marathon and
+   invites the crew to a fireteam in-game.
+6. **SCRUB CONTRACT** deletes the contract; guests can **DROP SLOT** to
+   leave on their own.
+
+> **Why manual friend-add?** Bungie's `POST /Social/Friends/Add` requires
+> the `BnetWrite` OAuth scope, which Bungie's own OpenAPI spec describes as
+> *"reserved for Bungie.net elevated scope: not meant to be used by third
+> party applications."* Self-serve apps can read friend lists but can't
+> create friendships. The deep-link approach is the cleanest honest path.
 
 ## Cloudflare deployment
 

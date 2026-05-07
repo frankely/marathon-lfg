@@ -13,11 +13,6 @@ export type LfgMember = {
   role: MemberRole;
   status: MemberStatus;
   joinedAt: number;
-  friendRequest?: {
-    sentAt: number;
-    ok: boolean;
-    error?: string;
-  };
 };
 
 export type Lfg = {
@@ -85,9 +80,6 @@ type MemberRow = {
   role: MemberRole;
   status: MemberStatus;
   joined_at: number;
-  friend_request_sent_at: number | null;
-  friend_request_ok: number | null;
-  friend_request_error: string | null;
 };
 
 function rowsToLfg(lfg: LfgRow, members: MemberRow[]): Lfg {
@@ -108,14 +100,6 @@ function rowsToLfg(lfg: LfgRow, members: MemberRow[]): Lfg {
         role: m.role,
         status: m.status,
         joinedAt: m.joined_at,
-        friendRequest:
-          m.friend_request_sent_at != null
-            ? {
-                sentAt: m.friend_request_sent_at,
-                ok: m.friend_request_ok === 1,
-                error: m.friend_request_error ?? undefined,
-              }
-            : undefined,
       }))
       .sort((a, b) => a.joinedAt - b.joinedAt),
   };
@@ -315,14 +299,12 @@ export async function deleteLfg(id: string): Promise<void> {
 }
 
 /**
- * Marks the LFG as INITIATED, flips all PENDING guests to CONFIRMED, and records
- * friend-request results per member. Caller is responsible for actually firing
- * the bungie.net friend requests; this just stores their outcomes.
+ * Marks the LFG as INITIATED and flips all PENDING guests to CONFIRMED.
+ * No external API calls — friend requests are handled manually by the host
+ * via bungie.net (the BnetWrite scope required for programmatic Friends/Add
+ * is reserved for first-party Bungie apps).
  */
-export async function markInitiated(
-  id: string,
-  results: Array<{ membershipId: string; ok: boolean; error?: string }>,
-): Promise<Lfg> {
+export async function markInitiated(id: string): Promise<Lfg> {
   const lfg = await getLfg(id);
   if (!lfg) throw new Error("LFG not found");
   const now = Date.now();
@@ -333,8 +315,6 @@ export async function markInitiated(
     lfg.initiatedAt = now;
     for (const m of lfg.members) {
       if (m.role === "GUEST" && m.status === "PENDING") m.status = "CONFIRMED";
-      const r = results.find((x) => x.membershipId === m.membershipId);
-      if (r) m.friendRequest = { sentAt: now, ok: r.ok, error: r.error };
     }
     memSave(lfg);
     return lfg;
@@ -350,16 +330,6 @@ export async function markInitiated(
     )
     .bind(id)
     .run();
-  for (const r of results) {
-    await db
-      .prepare(
-        `UPDATE lfg_members
-         SET friend_request_sent_at = ?, friend_request_ok = ?, friend_request_error = ?
-         WHERE lfg_id = ? AND membership_id = ?`,
-      )
-      .bind(now, r.ok ? 1 : 0, r.error ?? null, id, r.membershipId)
-      .run();
-  }
 
   return (await getLfg(id))!;
 }
