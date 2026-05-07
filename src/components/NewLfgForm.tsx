@@ -20,6 +20,23 @@ const QUICK_TAGS = [
   { id: "loot", label: "LOOT FOCUS", prefix: "[LOOT]" },
 ] as const;
 
+// Marathon Runner shells the host wants on the crew. Same toggle-prefix
+// behavior as QUICK_TAGS — clicking inserts e.g. "[ROOK]" into the
+// briefing so guests can see at a glance what comp the host is looking
+// for.
+//
+// Currently seeded with only the shells I could confirm from
+// authoritative sources (Wikipedia, marathonthegame.com). Drop additional
+// shells in here exactly as Bungie names them in the in-game class-select
+// screen — the role descriptor is optional but useful as the chip label.
+//
+// TODO(user): paste the launch shell roster here. Format:
+//   { id: "<lowercase-id>", label: "<DISPLAYED-NAME>", prefix: "[<TAG>]" }
+const SHELL_TAGS = [
+  { id: "rook", label: "ROOK", prefix: "[ROOK]" },
+  // { id: "<id>", label: "<NAME>", prefix: "[<TAG>]" },
+] as const;
+
 export default function NewLfgForm({
   hostName,
   hostCode,
@@ -148,6 +165,37 @@ export default function NewLfgForm({
                 </button>
               );
             })}
+          </div>
+          {/* Shells the host wants on the crew. Visually distinct from
+              QUICK_TAGS — uses signal/cyan tone so guests can tell at a
+              glance "this row = comp the host wants" vs the warm-lime row
+              of generic vibe tags above. */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span className="mr-1 font-mono text-[10px] tracking-hud text-muted">
+              SHELLS WANTED:
+            </span>
+            {SHELL_TAGS.map((t) => {
+              const active = isTagActive(t.prefix);
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => toggleTag(t.prefix)}
+                  aria-pressed={active}
+                  className={`border px-2 py-0.5 font-mono text-[10px] tracking-hud transition ${
+                    active
+                      ? "border-signal bg-signal/15 text-signal"
+                      : "border-line text-muted hover:border-signal/60 hover:text-foreground"
+                  }`}
+                >
+                  {active ? "✓ " : "+ "}
+                  {t.label}
+                </button>
+              );
+            })}
+            <span className="font-mono text-[10px] tracking-hud text-muted/70">
+              (more shells coming — full roster TBD)
+            </span>
           </div>
         </div>
 
