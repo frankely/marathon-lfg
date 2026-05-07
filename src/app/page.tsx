@@ -2,13 +2,30 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { COOKIE } from "@/lib/bungie";
 
-export default async function Home() {
+type SearchParams = Promise<{ deleted?: string }>;
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const cookieStore = await cookies();
   const isAuthed = Boolean(cookieStore.get(COOKIE.access)?.value);
+  const { deleted } = await searchParams;
 
   return (
     <main className="relative flex flex-1 flex-col">
       <div className="grid-bg absolute inset-0 opacity-60" aria-hidden />
+      {deleted && (
+        <div className="relative z-20 border-b border-signal/40 bg-signal/10">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3 font-mono text-[11px] tracking-hud">
+            <span className="text-signal">
+              ✓ ACCOUNT WIPED — all RUNNER//NET data tied to your Bungie ID
+              has been deleted. (Your bungie.net account is untouched.)
+            </span>
+          </div>
+        </div>
+      )}
 
       <header className="relative z-10 border-b border-line/80 bg-background/40 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">

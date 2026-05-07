@@ -209,6 +209,32 @@ export default async function RunnerPage({
             {JSON.stringify(user.Response, null, 2)}
           </pre>
         </details>
+
+        <div className="hud-corner relative border border-line bg-background-elev/40 p-5">
+          <div className="font-mono text-[11px] tracking-hud text-muted">
+            // ACCOUNT & PRIVACY
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[11px] tracking-hud">
+            <Link
+              href="/legal/privacy"
+              className="text-muted hover:text-foreground"
+            >
+              PRIVACY POLICY
+            </Link>
+            <Link
+              href="/legal/terms"
+              className="text-muted hover:text-foreground"
+            >
+              TERMS
+            </Link>
+            <Link
+              href="/account/delete"
+              className="text-danger hover:text-danger/80"
+            >
+              DELETE MY DATA →
+            </Link>
+          </div>
+        </div>
       </section>
     </main>
   );

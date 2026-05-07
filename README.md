@@ -76,6 +76,9 @@ npm run preview              # OpenNext local preview with bindings
 | `/api/auth/login`       | Generates state, redirects to Bungie's authorize URL   |
 | `/api/auth/callback`    | Validates state, exchanges code, caches identity       |
 | `/api/auth/logout`      | Clears the session cookies                             |
+| `/account/delete`       | Confirmation page for full data wipe (typed-confirm)   |
+| `/legal/privacy`        | Privacy policy (public, static)                        |
+| `/legal/terms`          | Terms of service (public, static)                      |
 
 ## LFG flow
 
