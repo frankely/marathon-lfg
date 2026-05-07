@@ -106,7 +106,7 @@ export default async function RunnerPage({
           </div>
           <Link
             href="/lfg"
-            className="group relative inline-flex shrink-0 items-center gap-2 border border-accent bg-accent/10 px-5 py-3 font-mono text-[11px] tracking-hud text-accent-strong transition hover:bg-accent/20"
+            className="hud-corner cta-primary group relative inline-flex shrink-0 items-center gap-2 border px-5 py-3 font-mono text-[11px] tracking-hud"
           >
             OPEN INFIL BOARD
             <span className="opacity-60 transition group-hover:translate-x-0.5">→</span>

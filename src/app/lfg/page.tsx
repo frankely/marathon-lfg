@@ -4,6 +4,9 @@ import { listLfgs } from "@/lib/lfg";
 import { getSession } from "@/lib/session";
 import AutoRefresh from "@/components/AutoRefresh";
 import OnboardingBanner from "@/components/OnboardingBanner";
+import { Avatar } from "@/components/Avatar";
+import { CapacityIndicator } from "@/components/CapacityIndicator";
+import { fmtTimeAgo } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -82,7 +85,7 @@ export default async function LfgBoard({
           </div>
           <Link
             href="/lfg/new"
-            className="hud-corner group relative inline-flex shrink-0 items-center gap-2 border border-accent bg-accent/10 px-4 py-2 font-mono text-[11px] tracking-hud text-accent-strong hover:bg-accent/20"
+            className="hud-corner cta-primary group relative inline-flex shrink-0 items-center gap-2 border px-4 py-2 font-mono text-[11px] tracking-hud"
           >
             POST CONTRACT
             <span className="opacity-60 transition group-hover:translate-x-0.5">→</span>
@@ -204,7 +207,7 @@ function EmptyBoard({ size }: { size: SizeFilter }) {
         </p>
         <Link
           href="/lfg/new"
-          className="mt-4 inline-flex items-center gap-2 border border-accent bg-accent/10 px-4 py-2 font-mono text-[11px] tracking-hud text-accent-strong hover:bg-accent/20"
+          className="cta-primary mt-4 inline-flex items-center gap-2 border px-4 py-2 font-mono text-[11px] tracking-hud"
         >
           POST {size === "any" ? "THE FIRST" : `A NEW ${size === "duo" ? "DUO" : "TRIO"}`} CONTRACT →
         </Link>
@@ -245,16 +248,36 @@ function EmptyBoard({ size }: { size: SizeFilter }) {
 function LfgCard({ lfg }: { lfg: Awaited<ReturnType<typeof listLfgs>>[number] }) {
   const host = lfg.members.find((m) => m.role === "HOST");
   const filled = lfg.members.length;
+  const pending = lfg.members.filter((m) => m.status === "PENDING").length;
   const isOpen = lfg.status === "OPEN";
+  const isFull = filled >= lfg.capacity;
 
   return (
     <li>
       <Link
         href={`/lfg/${lfg.id}`}
-        className="hud-corner relative flex flex-col gap-3 border border-line bg-background-elev/60 p-4 transition hover:border-accent/60 hover:bg-background-elev"
+        className="hud-corner card-lift relative flex flex-col gap-4 border border-line bg-background-elev/60 p-5 hover:border-accent/60 hover:bg-background-elev"
       >
-        <div className="flex items-center justify-between gap-3">
-          <span className="truncate text-base text-foreground">{lfg.title}</span>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            {host && (
+              <Avatar
+                name={host.displayName}
+                seed={host.membershipId}
+                isHost
+              />
+            )}
+            <div className="flex min-w-0 flex-col">
+              <span className="truncate text-base text-foreground">
+                {lfg.title}
+              </span>
+              <span className="truncate font-mono text-[11px] tracking-hud text-muted">
+                HOST <span className="text-foreground">{host?.displayName ?? "—"}</span>
+                <span className="mx-2 text-line">·</span>
+                {fmtTimeAgo(lfg.createdAt)}
+              </span>
+            </div>
+          </div>
           <span
             className={`shrink-0 border px-2 py-0.5 font-mono text-[10px] tracking-hud ${
               isOpen ? "border-accent/60 text-accent" : "border-signal/60 text-signal"
@@ -263,17 +286,22 @@ function LfgCard({ lfg }: { lfg: Awaited<ReturnType<typeof listLfgs>>[number] })
             {lfg.status === "INITIATED" ? "ON INFIL" : lfg.status}
           </span>
         </div>
-        {lfg.notes && <p className="line-clamp-2 text-sm text-muted">{lfg.notes}</p>}
-        <div className="flex items-center justify-between font-mono text-[11px] tracking-hud text-muted">
-          <span>
-            HOST <span className="text-foreground">{host?.displayName ?? "—"}</span>
+        {lfg.notes && (
+          <p className="line-clamp-2 text-sm text-muted">{lfg.notes}</p>
+        )}
+        <div className="flex items-center justify-between font-mono text-[11px] tracking-hud">
+          <span className="text-muted">
+            {lfg.capacity === 2 ? "DUO" : "TRIO"}
           </span>
-          <span>
-            {lfg.capacity === 2 ? "DUO" : "TRIO"} ·{" "}
-            <span className={filled >= lfg.capacity ? "text-warn" : "text-foreground"}>
-              {filled}
+          <span className="flex items-center gap-2">
+            <CapacityIndicator
+              capacity={lfg.capacity}
+              filled={filled}
+              pending={pending}
+            />
+            <span className={isFull ? "text-warn" : "text-muted"}>
+              {filled}/{lfg.capacity}
             </span>
-            <span className="text-muted">/{lfg.capacity}</span>
           </span>
         </div>
       </Link>
