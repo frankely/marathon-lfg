@@ -8,6 +8,13 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  // Custom domain — declarative so the binding survives Worker re-creation
+  // and is reproducible in another CF account if we ever need to migrate.
+  // The workers.dev subdomain remains accessible for ad-hoc debugging
+  // (set "workers_dev": false to lock the canonical URL down later).
+  "routes": [
+    { "pattern": "runneruplink.net", "custom_domain": true }
+  ],
   "d1_databases": [
     {
       "binding": "DB",
@@ -17,9 +24,9 @@
   ],
   "vars": {
     "BUNGIE_CLIENT_ID": "52137",
-    "BUNGIE_REDIRECT_URI": "https://marathon-lfg.icy-sound-17aa.workers.dev/api/auth/callback"
+    "BUNGIE_REDIRECT_URI": "https://runneruplink.net/api/auth/callback"
   }
-  // Secrets BUNGIE_API_KEY and BUNGIE_CLIENT_SECRET are set with:
-  //   npx wrangler secret put BUNGIE_API_KEY
-  //   npx wrangler secret put BUNGIE_CLIENT_SECRET
+  // Secrets (BUNGIE_API_KEY, CRON_SECRET) are synced from GitHub Secrets
+  // by the deploy workflow's "Sync Worker secrets" step. To set them
+  // manually instead: `npx wrangler secret put NAME`.
 }
