@@ -30,14 +30,21 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col scanlines">
         {children}
-        <footer className="relative z-10 border-t border-line/60 bg-background/40 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-2 px-6 py-3 font-mono text-[10px] leading-relaxed tracking-hud text-muted sm:flex-row sm:items-center">
-            <span>
-              UNAFFILIATED FAN PROJECT · NOT ENDORSED BY OR ASSOCIATED WITH BUNGIE
-            </span>
-            <span>
-              MARATHON, BUNGIE, AND ALL RELATED MARKS ARE TRADEMARKS OF
-              BUNGIE, INC. ·{" "}
+        <footer className="relative z-10 mt-auto border-t border-line/60 bg-background/40 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-4 font-mono text-[10px] leading-relaxed tracking-hud text-muted">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <a href="/legal/privacy" className="hover:text-foreground">
+                PRIVACY
+              </a>
+              <span aria-hidden>·</span>
+              <a href="/legal/terms" className="hover:text-foreground">
+                TERMS
+              </a>
+              <span aria-hidden>·</span>
+              <a href="/account/delete" className="hover:text-foreground">
+                DELETE MY DATA
+              </a>
+              <span aria-hidden>·</span>
               <a
                 href="https://www.bungie.net/en/Legal"
                 target="_blank"
@@ -46,7 +53,16 @@ export default function RootLayout({
               >
                 BUNGIE LEGAL ↗
               </a>
-            </span>
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-muted">
+              <span>
+                UNAFFILIATED FAN PROJECT · NOT ENDORSED BY OR ASSOCIATED WITH BUNGIE
+              </span>
+              <span>
+                MARATHON, BUNGIE, AND ALL RELATED MARKS ARE TRADEMARKS OF
+                BUNGIE, INC.
+              </span>
+            </div>
           </div>
         </footer>
       </body>

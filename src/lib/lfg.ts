@@ -337,3 +337,91 @@ export async function markInitiated(id: string): Promise<Lfg> {
 export function isUsingD1(): Promise<boolean> {
   return getDB().then((db) => db !== null);
 }
+
+// ---------- Account-deletion helpers ----------
+
+export type UserDataCounts = {
+  hosted: number;       // # of contracts the user hosts (all members purged with them)
+  memberships: number;  // # of contracts where user is a guest (only their row removed)
+};
+
+export async function countUserData(membershipId: string): Promise<UserDataCounts> {
+  const db = await getDB();
+  if (!db) {
+    let hosted = 0;
+    let memberships = 0;
+    for (const lfg of memStore.lfgs.values()) {
+      if (lfg.hostMembershipId === membershipId) {
+        hosted++;
+      } else if (lfg.members.some((m) => m.membershipId === membershipId)) {
+        memberships++;
+      }
+    }
+    return { hosted, memberships };
+  }
+  const hostedRow = await db
+    .prepare("SELECT COUNT(*) AS c FROM lfgs WHERE host_membership_id = ?")
+    .bind(membershipId)
+    .first<{ c: number }>();
+  const memberRow = await db
+    .prepare(
+      "SELECT COUNT(*) AS c FROM lfg_members WHERE membership_id = ? AND role != 'HOST'",
+    )
+    .bind(membershipId)
+    .first<{ c: number }>();
+  return {
+    hosted: hostedRow?.c ?? 0,
+    memberships: memberRow?.c ?? 0,
+  };
+}
+
+/**
+ * Hard-delete all data tied to a Bungie membership ID:
+ *  - Every contract the user hosts (and all members on those contracts)
+ *  - Every guest-membership row in any other contract
+ *
+ * Idempotent. Returns the actual counts removed for confirmation messaging.
+ */
+export async function deleteAllUserData(
+  membershipId: string,
+): Promise<UserDataCounts> {
+  const db = await getDB();
+  if (!db) {
+    let hosted = 0;
+    let memberships = 0;
+    for (const [id, lfg] of memStore.lfgs) {
+      if (lfg.hostMembershipId === membershipId) {
+        memStore.lfgs.delete(id);
+        hosted++;
+      }
+    }
+    for (const lfg of memStore.lfgs.values()) {
+      const before = lfg.members.length;
+      lfg.members = lfg.members.filter((m) => m.membershipId !== membershipId);
+      if (lfg.members.length < before) memberships++;
+    }
+    return { hosted, memberships };
+  }
+
+  // Count first so we can report accurate numbers post-delete.
+  const counts = await countUserData(membershipId);
+
+  // Drop everything they host (members first to be defensive about FK enforcement).
+  const hostedRows = (
+    await db
+      .prepare("SELECT id FROM lfgs WHERE host_membership_id = ?")
+      .bind(membershipId)
+      .all<{ id: string }>()
+  ).results;
+  for (const r of hostedRows) {
+    await db.prepare("DELETE FROM lfg_members WHERE lfg_id = ?").bind(r.id).run();
+    await db.prepare("DELETE FROM lfgs WHERE id = ?").bind(r.id).run();
+  }
+  // Drop their guest rows in any contracts they joined.
+  await db
+    .prepare("DELETE FROM lfg_members WHERE membership_id = ?")
+    .bind(membershipId)
+    .run();
+
+  return counts;
+}
