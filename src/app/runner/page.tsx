@@ -93,18 +93,31 @@ export default async function RunnerPage({
       </header>
 
       <section className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-12">
+        <div className="hud-corner relative flex flex-col gap-3 border border-accent/60 bg-accent/5 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-1">
+            <div className="font-mono text-[11px] tracking-hud text-accent">
+              // SHELL ONLINE — READY TO INFIL
+            </div>
+            <p className="text-sm leading-relaxed text-foreground">
+              You&apos;re signed in. Head to the{" "}
+              <span className="text-accent-strong">infil board</span> to find
+              a crew or post your own contract.
+            </p>
+          </div>
+          <Link
+            href="/lfg"
+            className="group relative inline-flex shrink-0 items-center gap-2 border border-accent bg-accent/10 px-5 py-3 font-mono text-[11px] tracking-hud text-accent-strong transition hover:bg-accent/20"
+          >
+            OPEN INFIL BOARD
+            <span className="opacity-60 transition group-hover:translate-x-0.5">→</span>
+          </Link>
+        </div>
+
         <div className="flex items-center justify-between">
           <div className="font-mono text-[11px] tracking-hud text-accent">
-            // SHELL ONLINE — RUNNER PROFILE LOADED
+            // RUNNER PROFILE
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href="/lfg"
-              className="hud-corner group relative inline-flex items-center gap-2 border border-accent bg-accent/10 px-4 py-2 font-mono text-[11px] tracking-hud text-accent-strong transition hover:bg-accent/20"
-            >
-              INFIL BOARD
-              <span className="opacity-60 transition group-hover:translate-x-0.5">→</span>
-            </Link>
             <Link
               href="/runner/friends"
               className="border border-line px-4 py-2 font-mono text-[11px] tracking-hud text-muted hover:border-accent/60 hover:text-foreground"

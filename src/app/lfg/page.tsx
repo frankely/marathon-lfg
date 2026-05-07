@@ -34,18 +34,25 @@ export default async function LfgBoard() {
       </header>
 
       <section className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-12">
-        <div className="flex items-end justify-between">
+        <div className="flex items-end justify-between gap-4">
           <div>
             <div className="font-mono text-[11px] tracking-hud text-accent">
-              // INFIL BOARD — OPEN CONTRACTS
+              // INFIL BOARD
             </div>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
-              Open contracts
+              Find a crew, or post your own
             </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
+              Each card below is a crew assembling for an infil into Tau Ceti
+              IV. Click in to see the manifest and{" "}
+              <span className="text-signal">request a slot</span>, or hit{" "}
+              <span className="text-accent">POST CONTRACT</span> to host your
+              own.
+            </p>
           </div>
           <Link
             href="/lfg/new"
-            className="hud-corner group relative inline-flex items-center gap-2 border border-accent bg-accent/10 px-4 py-2 font-mono text-[11px] tracking-hud text-accent-strong hover:bg-accent/20"
+            className="hud-corner group relative inline-flex shrink-0 items-center gap-2 border border-accent bg-accent/10 px-4 py-2 font-mono text-[11px] tracking-hud text-accent-strong hover:bg-accent/20"
           >
             POST CONTRACT
             <span className="opacity-60 transition group-hover:translate-x-0.5">→</span>
@@ -55,9 +62,16 @@ export default async function LfgBoard() {
         {open.length === 0 ? (
           <div className="hud-corner relative border border-line bg-background-elev/60 p-6">
             <div className="font-mono text-[11px] tracking-hud text-muted">// BOARD QUIET</div>
-            <p className="mt-2 text-sm text-muted">
-              No open contracts. Post one and route a crew into Tau Ceti IV.
+            <p className="mt-3 text-sm leading-relaxed text-foreground">
+              No open contracts right now. Be the first to post — Runners
+              checking the board will see your contract immediately.
             </p>
+            <Link
+              href="/lfg/new"
+              className="mt-4 inline-flex items-center gap-2 border border-accent bg-accent/10 px-4 py-2 font-mono text-[11px] tracking-hud text-accent-strong hover:bg-accent/20"
+            >
+              POST THE FIRST CONTRACT →
+            </Link>
           </div>
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2">

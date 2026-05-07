@@ -44,6 +44,30 @@ export default async function NewLfgPage() {
           </p>
         </div>
 
+        <div className="hud-corner relative border border-signal/40 bg-background-elev/60 p-4">
+          <div className="font-mono text-[10px] tracking-hud text-signal">
+            // WHAT HAPPENS NEXT
+          </div>
+          <ol className="mt-2 space-y-1 text-sm text-muted">
+            <li>
+              <span className="font-mono text-[10px] text-accent">1 →</span>{" "}
+              Your contract appears on the board. Runners join as{" "}
+              <span className="text-warn">PENDING</span>.
+            </li>
+            <li>
+              <span className="font-mono text-[10px] text-accent">2 →</span>{" "}
+              When you&apos;re ready, hit{" "}
+              <span className="text-accent-strong">CALL INFIL</span> to lock
+              the crew.
+            </li>
+            <li>
+              <span className="font-mono text-[10px] text-accent">3 →</span>{" "}
+              Add each Runner on bungie.net via the one-click link, then
+              launch Marathon and invite them in-game.
+            </li>
+          </ol>
+        </div>
+
         <form action={createLfgAction} className="hud-corner relative flex flex-col gap-5 border border-line bg-background-elev/60 p-6">
           <div className="flex flex-col gap-2">
             <label htmlFor="title" className="font-mono text-[10px] tracking-hud text-accent">
