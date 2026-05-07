@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getLfg, type Lfg, type LfgMember } from "@/lib/lfg";
 import { bungieProfileUrl } from "@/lib/bungie";
 import { getSession } from "@/lib/session";
+import AutoRefresh from "@/components/AutoRefresh";
 import {
   deleteLfgAction,
   initiateLfgAction,
@@ -14,6 +15,43 @@ import {
 export const dynamic = "force-dynamic";
 
 type Params = Promise<{ id: string }>;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<import("next").Metadata> {
+  const { id } = await params;
+  const lfg = await getLfg(id);
+  if (!lfg) {
+    return {
+      title: "Contract not found — RUNNER//NET",
+      description: "This LFG contract no longer exists.",
+    };
+  }
+  const sizeLabel = lfg.capacity === 2 ? "DUO" : "TRIO";
+  const statusLabel = lfg.status === "INITIATED" ? "ON INFIL" : lfg.status;
+  const description = `${sizeLabel} infil · ${lfg.members.length}/${lfg.capacity} Runners · ${statusLabel}${
+    lfg.notes ? ` — ${lfg.notes.slice(0, 120)}` : ""
+  }`;
+  const title = `${lfg.title} — RUNNER//NET`;
+  return {
+    title,
+    description,
+    openGraph: {
+      title: lfg.title,
+      description,
+      type: "website",
+      siteName: "RUNNER//NET",
+    },
+    twitter: {
+      card: "summary",
+      title: lfg.title,
+      description,
+    },
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function LfgDetailPage({ params }: { params: Params }) {
   const { id } = await params;
@@ -33,6 +71,7 @@ export default async function LfgDetailPage({ params }: { params: Params }) {
 
   return (
     <main className="relative flex flex-1 flex-col">
+      <AutoRefresh enabled={lfg.status === "OPEN"} intervalMs={5000} />
       <div className="grid-bg absolute inset-0 opacity-40" aria-hidden />
 
       <header className="relative z-10 border-b border-line/80 bg-background/40 backdrop-blur">

@@ -79,6 +79,7 @@ npm run preview              # OpenNext local preview with bindings
 | `/account/delete`       | Confirmation page for full data wipe (typed-confirm)   |
 | `/legal/privacy`        | Privacy policy (public, static)                        |
 | `/legal/terms`          | Terms of service (public, static)                      |
+| `/api/admin/purge-stale`| POST, Bearer-auth — drops contracts older than `?ageHours=N` (default 24). Called by the scheduled cleanup workflow. |
 
 ## LFG flow
 
@@ -138,6 +139,13 @@ To wire it up, add three repo secrets at
 | `CLOUDFLARE_ACCOUNT_ID` | `bb7c4ae583bb8f22a5234189e32308ee`                                   |
 | `CLOUDFLARE_API_TOKEN`  | A scoped token from <https://dash.cloudflare.com/profile/api-tokens> |
 | `BUNGIE_API_KEY`        | The API key from the Bungie app whose `client_id` is in `wrangler.jsonc` |
+| `CRON_SECRET`           | A long random string (`openssl rand -hex 32`). Synced to the Worker on deploy and used by the `/api/admin/purge-stale` endpoint. |
+
+…and **one repository variable** at the same screen (Variables tab):
+
+| Variable        | Value                                                                                       |
+| --------------- | ------------------------------------------------------------------------------------------- |
+| `PROD_BASE_URL` | Your Worker URL, e.g. `https://marathon-lfg.icy-sound-17aa.workers.dev` (no trailing slash) |
 
 The Cloudflare API token needs three permissions on **your account** only
 (no zone scope required):
@@ -154,6 +162,23 @@ step; this app uses a Public client so it's not needed.
 
 If you want a manual run, the workflow has `workflow_dispatch` enabled — just
 hit *Run workflow* on the Actions tab.
+
+### Scheduled cleanup
+
+`.github/workflows/purge-stale.yml` runs every 6 hours and POSTs to
+`/api/admin/purge-stale`, dropping contracts older than 24h so the board
+doesn't fill up with abandoned posts. Authenticated via the same
+`CRON_SECRET` that's synced to the Worker. Trigger it manually from the
+Actions tab with a custom `ageHours` if you need a one-off flush (range
+1–168 hours).
+
+### Observability
+
+Errors and notable events are logged via `src/lib/log.ts` as one JSON
+line per event. View them in the Cloudflare dashboard → Workers &
+Pages → `marathon-lfg` → Logs (real-time tail) or under Logpush for
+historical search. No third-party APM is configured — Workers Logs +
+structured events cover real visibility for $0 at this scale.
 
 ### Migrations
 

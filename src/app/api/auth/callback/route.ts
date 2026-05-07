@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 import { COOKIE, exchangeCodeForToken, getCurrentUser } from "@/lib/bungie";
 import { setIdentityCookie } from "@/lib/session";
+import { logError, logInfo, logWarn } from "@/lib/log";
 
 export async function GET(request: NextRequest) {
   const url = request.nextUrl;
@@ -10,15 +11,18 @@ export async function GET(request: NextRequest) {
   const error = url.searchParams.get("error");
 
   if (error) {
+    logWarn("oauth_callback_provider_error", { error });
     return redirectToRunner(request, { error });
   }
   if (!code || !state) {
+    logWarn("oauth_callback_missing_params", { hasCode: !!code, hasState: !!state });
     return redirectToRunner(request, { error: "missing_code_or_state" });
   }
 
   const cookieStore = await cookies();
   const expectedState = cookieStore.get(COOKIE.state)?.value;
   if (!expectedState || expectedState !== state) {
+    logWarn("oauth_callback_state_mismatch", { hasExpected: !!expectedState });
     return redirectToRunner(request, { error: "state_mismatch" });
   }
   cookieStore.delete(COOKIE.state);
@@ -27,9 +31,11 @@ export async function GET(request: NextRequest) {
   try {
     token = await exchangeCodeForToken(code);
   } catch (e) {
+    logError("oauth_token_exchange_failed", e);
     const message = e instanceof Error ? e.message : "token_exchange_failed";
     return redirectToRunner(request, { error: message });
   }
+  logInfo("oauth_callback_success", { membershipId: token.membership_id });
 
   const expiresAt = Date.now() + token.expires_in * 1000;
 
@@ -67,8 +73,10 @@ export async function GET(request: NextRequest) {
       },
       token.expires_in,
     );
-  } catch {
-    /* identity caching is best-effort; LFG actions can still work */
+  } catch (e) {
+    // Identity caching is best-effort — LFG actions still work without it.
+    // Log so we notice if the Bungie API is broken or scopes are wrong.
+    logWarn("identity_cache_failed", { error: e instanceof Error ? e.message : String(e) });
   }
 
   return redirectToRunner(request);

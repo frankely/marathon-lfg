@@ -338,6 +338,36 @@ export function isUsingD1(): Promise<boolean> {
   return getDB().then((db) => db !== null);
 }
 
+/**
+ * Hard-delete every LFG (and its members) created before `cutoffMs`.
+ * Returns the count of contracts deleted. Used by the cron-driven cleanup
+ * job to keep the board fresh.
+ */
+export async function purgeStaleLfgs(cutoffMs: number): Promise<number> {
+  const db = await getDB();
+  if (!db) {
+    let n = 0;
+    for (const [id, lfg] of memStore.lfgs) {
+      if (lfg.createdAt < cutoffMs) {
+        memStore.lfgs.delete(id);
+        n++;
+      }
+    }
+    return n;
+  }
+  const stale = (
+    await db
+      .prepare("SELECT id FROM lfgs WHERE created_at < ?")
+      .bind(cutoffMs)
+      .all<{ id: string }>()
+  ).results;
+  for (const r of stale) {
+    await db.prepare("DELETE FROM lfg_members WHERE lfg_id = ?").bind(r.id).run();
+    await db.prepare("DELETE FROM lfgs WHERE id = ?").bind(r.id).run();
+  }
+  return stale.length;
+}
+
 // ---------- Account-deletion helpers ----------
 
 export type UserDataCounts = {
