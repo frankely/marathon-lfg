@@ -151,24 +151,31 @@ export default function NewLfgForm({
           </div>
         </div>
 
-        {/* Capacity */}
+        {/* Capacity — visual radio cards instead of a dropdown */}
         <div className="flex flex-col gap-2">
-          <label
-            htmlFor="capacity"
-            className="font-mono text-[10px] tracking-hud text-accent"
-          >
+          <span className="font-mono text-[10px] tracking-hud text-accent">
             LOOKING FOR
-          </label>
-          <select
-            id="capacity"
-            name="capacity"
-            value={capacity}
-            onChange={(e) => setCapacity(Number(e.target.value) === 2 ? 2 : 3)}
-            className="border border-line bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
-          >
-            <option value="2">+1 — fill out a DUO</option>
-            <option value="3">+2 — fill out a TRIO</option>
-          </select>
+          </span>
+          <div role="radiogroup" aria-label="Crew size" className="grid grid-cols-2 gap-2">
+            <CapacityChoice
+              value={2}
+              selected={capacity === 2}
+              onSelect={setCapacity}
+              label="DUO"
+              fill="+1"
+              dotsTotal={2}
+            />
+            <CapacityChoice
+              value={3}
+              selected={capacity === 3}
+              onSelect={setCapacity}
+              label="TRIO"
+              fill="+2"
+              dotsTotal={3}
+            />
+          </div>
+          {/* Hidden input so the value still posts with the form action. */}
+          <input type="hidden" name="capacity" value={capacity} />
           <p className="font-mono text-[10px] tracking-hud text-muted">
             You count as 1 of the crew. Marathon runs cap at trios.
           </p>
@@ -209,6 +216,69 @@ export default function NewLfgForm({
   );
 }
 
+function CapacityChoice({
+  value,
+  selected,
+  onSelect,
+  label,
+  fill,
+  dotsTotal,
+}: {
+  value: 2 | 3;
+  selected: boolean;
+  onSelect: (v: 2 | 3) => void;
+  label: string;
+  fill: string;
+  dotsTotal: number;
+}) {
+  // 1 dot filled (the host), rest hollow (slots to fill).
+  const dots = Array.from({ length: dotsTotal }, (_, i) => i === 0);
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={selected}
+      onClick={() => onSelect(value)}
+      className={`hud-corner relative flex flex-col items-start gap-2 border p-3 text-left transition ${
+        selected
+          ? "cta-primary"
+          : "border-line bg-background-elev/40 hover:border-accent/60"
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <span
+          className={`font-mono text-[11px] tracking-hud ${
+            selected ? "text-accent-strong" : "text-foreground"
+          }`}
+        >
+          {label}
+        </span>
+        <span
+          className={`font-mono text-[10px] tracking-hud ${
+            selected ? "text-accent-strong" : "text-muted"
+          }`}
+        >
+          · {fill}
+        </span>
+      </div>
+      <span className="inline-flex items-center gap-1.5">
+        {dots.map((filled, i) => (
+          <span
+            key={i}
+            className={`size-2.5 rounded-full border ${
+              filled
+                ? "border-accent bg-accent"
+                : selected
+                  ? "border-accent/60 bg-transparent"
+                  : "border-line bg-transparent"
+            }`}
+          />
+        ))}
+      </span>
+    </button>
+  );
+}
+
 function SubmitButton({ disabled }: { disabled: boolean }) {
   // useFormStatus reads from the parent <form>'s action state — gives us
   // a real "is the server action in flight" signal so we can disable the
@@ -219,10 +289,10 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
     <button
       type="submit"
       disabled={isDisabled}
-      className={`hud-corner relative inline-flex items-center gap-2 border px-5 py-2 font-mono text-[11px] tracking-hud transition ${
+      className={`hud-corner relative inline-flex items-center gap-2 border px-5 py-2 font-mono text-[11px] tracking-hud ${
         isDisabled
           ? "cursor-not-allowed border-line bg-background-elev text-muted"
-          : "border-accent bg-accent/10 text-accent-strong hover:bg-accent/20"
+          : "cta-primary"
       }`}
     >
       {pending ? "POSTING…" : "POST CONTRACT →"}

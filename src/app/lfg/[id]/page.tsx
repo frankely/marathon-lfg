@@ -4,6 +4,9 @@ import { getLfg, type Lfg, type LfgMember } from "@/lib/lfg";
 import { bungieProfileUrl } from "@/lib/bungie";
 import { getSession } from "@/lib/session";
 import AutoRefresh from "@/components/AutoRefresh";
+import { Avatar } from "@/components/Avatar";
+import { CapacityIndicator } from "@/components/CapacityIndicator";
+import { fmtTimeAgo } from "@/lib/format";
 import {
   deleteLfgAction,
   initiateLfgAction,
@@ -106,18 +109,30 @@ export default async function LfgDetailPage({ params }: { params: Params }) {
           <StatusBadge status={lfg.status} />
         </div>
 
-        <div className="hud-corner relative grid grid-cols-3 gap-3 border border-line bg-background-elev/60 p-4 font-mono text-[11px] tracking-hud">
-          <Stat
-            label={lfg.capacity === 2 ? "DUO" : "TRIO"}
-            value={`${lfg.members.length}/${lfg.capacity}`}
-            highlight={isFull}
-          />
-          <Stat label="POSTED" value={fmtClock(lfg.createdAt)} />
+        <div className="hud-corner relative grid grid-cols-1 gap-3 border border-line bg-background-elev/60 p-4 font-mono text-[11px] tracking-hud sm:grid-cols-3">
+          {/* Crew slot — visual indicator + count */}
+          <div className="flex flex-col gap-2">
+            <span className="text-accent">
+              {lfg.capacity === 2 ? "DUO" : "TRIO"}
+            </span>
+            <div className="flex items-center gap-2">
+              <CapacityIndicator
+                capacity={lfg.capacity}
+                filled={lfg.members.length}
+                pending={lfg.members.filter((m) => m.status === "PENDING").length}
+                size="lg"
+              />
+              <span className={isFull ? "text-warn" : "text-foreground"}>
+                {lfg.members.length}/{lfg.capacity}
+              </span>
+            </div>
+          </div>
+          <Stat label="POSTED" value={fmtTimeAgo(lfg.createdAt)} />
           <Stat
             label={lfg.initiatedAt ? "INFIL CALLED" : "STATUS"}
             value={
               lfg.initiatedAt
-                ? fmtClock(lfg.initiatedAt)
+                ? fmtTimeAgo(lfg.initiatedAt)
                 : lfg.status === "INITIATED"
                   ? "ON INFIL"
                   : lfg.status
@@ -142,7 +157,7 @@ export default async function LfgDetailPage({ params }: { params: Params }) {
               <button
                 type="submit"
                 disabled={!canInitiate}
-                className="hud-corner relative inline-flex items-center gap-2 border border-accent bg-accent/10 px-5 py-2 font-mono text-[11px] tracking-hud text-accent-strong transition hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
+                className="hud-corner cta-primary relative inline-flex items-center gap-2 border px-5 py-2 font-mono text-[11px] tracking-hud disabled:cursor-not-allowed disabled:opacity-50"
               >
                 CALL INFIL — LOCK CREW →
               </button>
@@ -406,21 +421,29 @@ function MemberRow({
 
   return (
     <li className="hud-corner relative flex flex-wrap items-center justify-between gap-4 border border-line bg-background-elev/60 p-4">
-      <div className="flex flex-col gap-1">
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <span className="text-base text-foreground">{member.displayName}</span>
-          {typeof member.displayCode === "number" && (
-            <span className="font-mono text-[11px] text-muted">
-              #{String(member.displayCode).padStart(4, "0")}
+      <div className="flex items-center gap-4">
+        <Avatar
+          name={member.displayName}
+          seed={member.membershipId}
+          isHost={isHost}
+          size="md"
+        />
+        <div className="flex flex-col gap-1">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span className="text-base text-foreground">{member.displayName}</span>
+            {typeof member.displayCode === "number" && (
+              <span className="font-mono text-[11px] text-muted">
+                #{String(member.displayCode).padStart(4, "0")}
+              </span>
+            )}
+            {isSelf && <span className="font-mono text-[10px] tracking-hud text-accent">[ YOU ]</span>}
+          </div>
+          <div className="flex items-center gap-3 font-mono text-[10px] tracking-hud">
+            <span className={isHost ? "text-accent" : "text-muted"}>
+              {isHost ? "HOST" : "GUEST"}
             </span>
-          )}
-          {isSelf && <span className="font-mono text-[10px] tracking-hud text-accent">[ YOU ]</span>}
-        </div>
-        <div className="flex items-center gap-3 font-mono text-[10px] tracking-hud">
-          <span className={isHost ? "text-accent" : "text-muted"}>
-            {isHost ? "HOST" : "GUEST"}
-          </span>
-          <StatusDot status={member.status} />
+            <StatusDot status={member.status} />
+          </div>
         </div>
       </div>
       <div className="flex items-center gap-2">
@@ -490,13 +513,3 @@ function Stat({ label, value, highlight }: { label: string; value: string; highl
   );
 }
 
-function fmtClock(ts: number): string {
-  const now = Date.now();
-  const diff = Math.max(0, now - ts);
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "JUST NOW";
-  if (mins < 60) return `${mins}m AGO`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h AGO`;
-  return `${Math.floor(hours / 24)}d AGO`;
-}

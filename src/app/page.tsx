@@ -62,7 +62,7 @@ export default async function Home({
             <>
               <Link
                 href="/lfg"
-                className="hud-corner group relative inline-flex items-center gap-3 border border-accent bg-accent/10 px-6 py-3 font-mono text-sm tracking-hud text-accent-strong transition hover:bg-accent/20"
+                className="hud-corner cta-primary group relative inline-flex items-center gap-3 border px-6 py-3 font-mono text-sm tracking-hud"
               >
                 <span className="size-1.5 rounded-full bg-accent animate-pulse" />
                 OPEN INFIL BOARD
@@ -84,7 +84,7 @@ export default async function Home({
           ) : (
             <a
               href="/api/auth/login"
-              className="hud-corner group relative inline-flex items-center gap-3 border border-accent bg-accent/10 px-6 py-3 font-mono text-sm tracking-hud text-accent-strong transition hover:bg-accent/20"
+              className="hud-corner cta-primary group relative inline-flex items-center gap-3 border px-6 py-3 font-mono text-sm tracking-hud"
             >
               <span className="size-1.5 rounded-full bg-accent animate-pulse" />
               JACK IN — BUNGIE HANDSHAKE
@@ -138,10 +138,15 @@ export default async function Home({
 
 function Step({ n, title, body }: { n: string; title: string; body: string }) {
   return (
-    <li className="hud-corner relative border border-line bg-background-elev/60 p-5">
-      <div className="flex items-baseline gap-3">
-        <span className="font-mono text-2xl text-accent">{n}</span>
-        <span className="font-mono text-sm tracking-hud text-foreground">{title}</span>
+    <li className="hud-corner card-lift relative border border-line bg-background-elev/60 p-5">
+      <div className="flex items-start justify-between">
+        <span className="serial-number">{n}</span>
+        <span className="mt-2 font-mono text-[10px] tracking-hud text-muted">
+          STEP
+        </span>
+      </div>
+      <div className="mt-3 font-mono text-sm tracking-hud text-foreground">
+        {title}
       </div>
       <p className="mt-3 text-sm leading-relaxed text-muted">{body}</p>
     </li>

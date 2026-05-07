@@ -95,3 +95,51 @@ body {
 .tracking-hud {
   letter-spacing: 0.18em;
 }
+
+/* Marathon-styled gradient for primary CTAs — orange → amber, with a
+   subtle inner highlight on hover. Pairs with bg-accent fallbacks for
+   browsers that don't render gradients on borders consistently. */
+.cta-primary {
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 122, 26, 0.18) 0%,
+    rgba(255, 179, 71, 0.22) 100%
+  );
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  transition: background-image 200ms ease, transform 100ms ease, box-shadow 200ms ease;
+}
+.cta-primary:hover:not(:disabled) {
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 122, 26, 0.32) 0%,
+    rgba(255, 179, 71, 0.38) 100%
+  );
+  box-shadow: 0 0 24px -4px rgba(255, 122, 26, 0.4);
+}
+.cta-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* Big serial-number style for step indicators ("01", "02", "03") —
+   thin outline numerals reminiscent of Marathon's marketing typography. */
+.serial-number {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 3rem;
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--accent);
+  -webkit-text-stroke: 1px var(--accent);
+  color: transparent;
+}
+
+/* Card hover lift for board cards — subtle but enough that the cursor
+   feels like it's interacting with a physical surface. */
+.card-lift {
+  transition: transform 150ms ease, border-color 150ms ease, box-shadow 200ms ease;
+}
+.card-lift:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px -8px rgba(255, 122, 26, 0.25);
+}
