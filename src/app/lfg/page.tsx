@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { listLfgs } from "@/lib/lfg";
 import { getSession } from "@/lib/session";
 import AutoRefresh from "@/components/AutoRefresh";
+import OnboardingBanner from "@/components/OnboardingBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -88,23 +89,12 @@ export default async function LfgBoard({
           </Link>
         </div>
 
+        <OnboardingBanner />
+
         <FilterBar size={size} show={show} />
 
         {open.length === 0 ? (
-          <div className="hud-corner relative border border-line bg-background-elev/60 p-6">
-            <div className="font-mono text-[11px] tracking-hud text-muted">// BOARD QUIET</div>
-            <p className="mt-3 text-sm leading-relaxed text-foreground">
-              {size === "any"
-                ? "No open contracts right now. Be the first to post — Runners checking the board will see your contract immediately."
-                : `No open ${size === "duo" ? "duos" : "trios"} right now. Try widening the filter or post your own.`}
-            </p>
-            <Link
-              href="/lfg/new"
-              className="mt-4 inline-flex items-center gap-2 border border-accent bg-accent/10 px-4 py-2 font-mono text-[11px] tracking-hud text-accent-strong hover:bg-accent/20"
-            >
-              POST {size === "any" ? "THE FIRST" : `A NEW ${size === "duo" ? "DUO" : "TRIO"}`} CONTRACT →
-            </Link>
-          </div>
+          <EmptyBoard size={size} />
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2">
             {open.map((lfg) => (
@@ -196,6 +186,59 @@ function FilterPill({
     >
       {children}
     </Link>
+  );
+}
+
+function EmptyBoard({ size }: { size: SizeFilter }) {
+  const sizeLabel = size === "duo" ? "duos" : size === "trio" ? "trios" : "contracts";
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="hud-corner relative border border-line bg-background-elev/60 p-6">
+        <div className="font-mono text-[11px] tracking-hud text-muted">
+          // BOARD QUIET
+        </div>
+        <p className="mt-3 text-sm leading-relaxed text-foreground">
+          {size === "any"
+            ? "No open contracts right now. Be the first to post — Runners checking the board will see your contract immediately."
+            : `No open ${sizeLabel} matching this filter. Try widening it or post your own.`}
+        </p>
+        <Link
+          href="/lfg/new"
+          className="mt-4 inline-flex items-center gap-2 border border-accent bg-accent/10 px-4 py-2 font-mono text-[11px] tracking-hud text-accent-strong hover:bg-accent/20"
+        >
+          POST {size === "any" ? "THE FIRST" : `A NEW ${size === "duo" ? "DUO" : "TRIO"}`} CONTRACT →
+        </Link>
+      </div>
+
+      {/* Static example so a first-time visitor sees the card format. */}
+      <div>
+        <div className="mb-2 font-mono text-[10px] tracking-hud text-muted">
+          // FOR REFERENCE — WHAT A POSTED CONTRACT LOOKS LIKE
+        </div>
+        <div className="hud-corner relative flex max-w-md flex-col gap-3 border border-dashed border-line/60 bg-background-elev/40 p-4 opacity-70">
+          <div className="flex items-center justify-between gap-3">
+            <span className="truncate text-base text-foreground">
+              Trio infil — Dire Marsh sweep
+            </span>
+            <span className="shrink-0 border border-accent/60 px-2 py-0.5 font-mono text-[10px] tracking-hud text-accent">
+              OPEN
+            </span>
+          </div>
+          <p className="line-clamp-2 text-sm text-muted">
+            [MIC] [STEALTH] Mic preferred. Stealth comp. Faction contracts welcome.
+          </p>
+          <div className="flex items-center justify-between font-mono text-[11px] tracking-hud text-muted">
+            <span>
+              HOST <span className="text-foreground">Example Runner</span>
+            </span>
+            <span>
+              TRIO · <span className="text-foreground">2</span>
+              <span className="text-muted">/3</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
