@@ -22,25 +22,21 @@ const QUICK_TAGS = [
 
 // Marathon Runner shells a host can request on their crew. Same
 // toggle-prefix behavior as QUICK_TAGS — clicking inserts e.g.
-// "[<SHELL>]" into the briefing so guests can see at a glance what
+// "[VANDAL]" into the briefing so guests can see at a glance what
 // comp the host wants.
 //
-// Empty by intent: marathonthegame.com /runners 404s, bungie.net/marathon
-// doesn't enumerate, and the only shell-name I could find publicly
-// (Rook, via Wikipedia) is the SOLO scavenger mode — not a crew shell —
-// so it doesn't belong here. Pre-release alpha names (Glitch / Locus /
-// Blackbird etc.) are unverified post-launch and intentionally omitted
-// to avoid the same lore-invention pattern as the earlier "Sevita Prime"
-// mistake.
-//
-// TODO(user): paste the launch CREW-PLAYABLE shell roster from the
-// in-game class-select screen. Format:
-//   { id: "<lowercase-id>", label: "<DISPLAYED-NAME>", prefix: "[<TAG>]" }
-//
-// The SHELLS WANTED chip row only renders when this array is non-empty,
-// so it's invisible until real shells are seeded.
+// Source: marathongame.fandom.com/wiki/Runner — the article's "List"
+// section under Gameplay enumerates six crew-playable shells at launch.
+// Several were renamed late in development; we use the current launch
+// names. Rook is intentionally excluded — it's the solo scavenger
+// mode, not a crew-fillable shell.
 const SHELL_TAGS: ReadonlyArray<{ id: string; label: string; prefix: string }> = [
-  // { id: "<id>", label: "<NAME>", prefix: "[<TAG>]" },
+  { id: "recon", label: "RECON", prefix: "[RECON]" },
+  { id: "destroyer", label: "DESTROYER", prefix: "[DESTROYER]" },
+  { id: "vandal", label: "VANDAL", prefix: "[VANDAL]" },
+  { id: "thief", label: "THIEF", prefix: "[THIEF]" },
+  { id: "assassin", label: "ASSASSIN", prefix: "[ASSASSIN]" },
+  { id: "triage", label: "TRIAGE", prefix: "[TRIAGE]" },
 ];
 
 export default function NewLfgForm({
