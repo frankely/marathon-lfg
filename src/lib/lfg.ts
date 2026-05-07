@@ -80,13 +80,6 @@ type MemberRow = {
   role: MemberRole;
   status: MemberStatus;
   joined_at: number;
-  // Legacy columns from when we tried to fire bungie.net friend requests
-  // server-side. The Bungie API doesn't expose that scope to third-party
-  // apps, so we no longer touch them. Left in place to avoid a destructive
-  // SQLite migration on the live D1 instance.
-  friend_request_sent_at: number | null;
-  friend_request_ok: number | null;
-  friend_request_error: string | null;
 };
 
 function rowsToLfg(lfg: LfgRow, members: MemberRow[]): Lfg {
