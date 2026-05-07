@@ -167,6 +167,50 @@ step; this app uses a Public client so it's not needed.
 If you want a manual run, the workflow has `workflow_dispatch` enabled — just
 hit *Run workflow* on the Actions tab.
 
+### PR previews
+
+Every push to a pull request triggers `.github/workflows/preview.yml`,
+which deploys the PR's HEAD commit to the preview environment:
+
+- **URL:** <https://preview.runneruplink.net>
+- **Worker:** `marathon-lfg-preview` (auto-named from `[env.preview]`
+  in `wrangler.jsonc`)
+- **D1:** `marathon-lfg-db-preview` (UUID `361ca148-8c00-4a7a-af66-f7680ec46959`)
+- **Bungie app:** **52148** (separate from prod's 52137 — see below)
+- **Bungie redirect URI:** `https://preview.runneruplink.net/api/auth/callback`
+  registered on app 52148.
+
+The preview env is **shared across all open PRs**. The latest pushed
+PR overwrites whatever was there. To re-roll back to your PR's preview,
+hit *Run workflow* on the Preview workflow with your branch selected.
+A bot comment on each PR shows the URL + commit hash currently live.
+
+The preview D1 is **completely isolated from prod** — destructive
+migrations, test contracts, and account-deletion flows can be
+exercised end-to-end without touching real data.
+
+#### Why a separate Bungie app for preview?
+
+Bungie's app config only accepts **one** redirect URL per app — there's
+no multi-URL textarea, no wildcards. So prod and preview need separate
+Bungie apps, each with its own `client_id` and API key. Mapping:
+
+| Env     | Bungie app | client_id | Redirect URL                                         |
+| ------- | ---------- | --------- | ---------------------------------------------------- |
+| Prod    | 52137      | 52137     | `https://runneruplink.net/api/auth/callback`         |
+| Preview | 52148      | 52148     | `https://preview.runneruplink.net/api/auth/callback` |
+
+The preview app's API key is stored as a **separate GitHub secret**
+(`BUNGIE_API_KEY_PREVIEW`) and uploaded to the preview Worker under
+the same env-var name (`BUNGIE_API_KEY`) so application code reads
+it transparently.
+
+Add **one extra GH secret** at Settings → Secrets and variables → Actions:
+
+| Secret                   | Value                                          |
+| ------------------------ | ---------------------------------------------- |
+| `BUNGIE_API_KEY_PREVIEW` | API key from Bungie app **52148** (preview)    |
+
 ### Scheduled cleanup
 
 `.github/workflows/purge-stale.yml` runs every 6 hours and POSTs to
