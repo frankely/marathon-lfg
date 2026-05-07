@@ -25,8 +25,44 @@
   "vars": {
     "BUNGIE_CLIENT_ID": "52137",
     "BUNGIE_REDIRECT_URI": "https://runneruplink.net/api/auth/callback"
+  },
+  // Preview environment for PR review.
+  //
+  // Worker name auto-derives from "marathon-lfg" + "-preview" =
+  // "marathon-lfg-preview". Bound to its own D1 database
+  // (marathon-lfg-db-preview) so PR data never touches prod, and
+  // exposed at preview.runneruplink.net via a custom-domain route.
+  // Deployed by .github/workflows/preview.yml on every PR push.
+  //
+  // BUNGIE APP: uses a separate Bungie app (52138) from prod (52137).
+  // Bungie's app config only accepts one redirect URL, so we can't
+  // register both prod and preview on the same app. The two apps
+  // have independent API keys — the preview key is stored as a
+  // separate GH secret (BUNGIE_API_KEY_PREVIEW) and synced onto
+  // the preview Worker as BUNGIE_API_KEY by .github/workflows/preview.yml.
+  //
+  // Env blocks REPLACE (not merge) inheritable fields, so we
+  // re-declare routes / d1_databases / vars in full here.
+  "env": {
+    "preview": {
+      "routes": [
+        { "pattern": "preview.runneruplink.net", "custom_domain": true }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "marathon-lfg-db-preview",
+          "database_id": "361ca148-8c00-4a7a-af66-f7680ec46959"
+        }
+      ],
+      "vars": {
+        "BUNGIE_CLIENT_ID": "52138",
+        "BUNGIE_REDIRECT_URI": "https://preview.runneruplink.net/api/auth/callback"
+      }
+    }
   }
   // Secrets (BUNGIE_API_KEY, CRON_SECRET) are synced from GitHub Secrets
-  // by the deploy workflow's "Sync Worker secrets" step. To set them
-  // manually instead: `npx wrangler secret put NAME`.
+  // by deploy.yml (prod) and preview.yml (preview). To set them manually:
+  //   npx wrangler secret put BUNGIE_API_KEY                 (prod)
+  //   npx wrangler secret put BUNGIE_API_KEY --env preview   (preview)
 }

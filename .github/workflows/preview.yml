@@ -1,0 +1,109 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+# One in-flight preview deploy per PR. New pushes cancel older ones.
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  preview:
+    name: Deploy to preview env
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: preview
+      url: https://preview.runneruplink.net
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Check out the PR's head, not the merge commit, so the preview
+          # exactly mirrors what's on the branch.
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Apply pending D1 migrations to preview DB
+        run: npx wrangler d1 migrations apply marathon-lfg-db-preview --remote
+        # Same migrations directory as prod (./migrations), separate D1.
+        # Wrangler tracks applied migrations in d1_migrations on each DB.
+
+      - name: Build with OpenNext
+        run: npx opennextjs-cloudflare build
+
+      - name: Deploy to preview env
+        # Deploy FIRST so the Worker exists before we try to put secrets
+        # on it. Secrets take effect on the next request, no redeploy
+        # needed after the sync step below.
+        run: npx opennextjs-cloudflare deploy -- --env preview
+
+      - name: Sync Worker secrets to preview env from GitHub
+        env:
+          # Preview uses a SEPARATE Bungie app (52138) from prod (52137)
+          # because Bungie only accepts one redirect URL per app. The
+          # preview app's API key is stored under a different GH secret
+          # name to avoid clobbering the prod key, but it's uploaded to
+          # the preview Worker under the same env-var name (BUNGIE_API_KEY)
+          # so the application code reads it transparently.
+          BUNGIE_API_KEY_PREVIEW: ${{ secrets.BUNGIE_API_KEY_PREVIEW }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$BUNGIE_API_KEY_PREVIEW" ]; then
+            echo "::error::BUNGIE_API_KEY_PREVIEW GitHub secret is not set."
+            echo "::error::Add it at Settings → Secrets and variables → Actions."
+            echo "::error::Value: API key from Bungie app 52138 (the preview app)."
+            exit 1
+          fi
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::CRON_SECRET GitHub secret is not set."
+            exit 1
+          fi
+          jq -n \
+            --arg bungie "$BUNGIE_API_KEY_PREVIEW" \
+            --arg cron "$CRON_SECRET" \
+            '{BUNGIE_API_KEY: $bungie, CRON_SECRET: $cron}' \
+            > "$RUNNER_TEMP/secrets.json"
+          npx wrangler secret bulk "$RUNNER_TEMP/secrets.json" --env preview
+          rm "$RUNNER_TEMP/secrets.json"
+
+      - name: Find existing preview comment
+        uses: peter-evans/find-comment@v3
+        id: find
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '<!-- preview-deploy -->'
+
+      - name: Create or update preview comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.find.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          edit-mode: replace
+          body: |
+            <!-- preview-deploy -->
+            🚀 **Preview deployed** → https://preview.runneruplink.net
+
+            **Commit:** [`${{ github.event.pull_request.head.sha }}`](${{ github.event.pull_request.html_url }}/commits/${{ github.event.pull_request.head.sha }})
+            **Updated:** ${{ github.event.repository.updated_at }}
+
+            ⚠️ Preview env is **shared** — only one PR is live at this URL at a time. Latest pushed PR overwrites it. Hit *Run workflow* on the [Preview workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/preview.yml) to redeploy this PR if someone else's pushed over yours.
+
+            Bound to the **`marathon-lfg-db-preview`** D1 — your test data here is isolated from prod.
