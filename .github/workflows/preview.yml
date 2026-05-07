@@ -41,7 +41,11 @@ jobs:
         run: npm ci
 
       - name: Apply pending D1 migrations to preview DB
-        run: npx wrangler d1 migrations apply marathon-lfg-db-preview --remote
+        run: npx wrangler d1 migrations apply marathon-lfg-db-preview --remote --env preview
+        # --env preview is required because the d1_databases binding lives
+        # in the [env.preview] block in wrangler.jsonc, not at top level.
+        # Without --env, wrangler reads the top-level config (prod's
+        # marathon-lfg-db) and can't find the preview binding by name.
         # Same migrations directory as prod (./migrations), separate D1.
         # Wrangler tracks applied migrations in d1_migrations on each DB.
 
