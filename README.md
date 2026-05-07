@@ -176,9 +176,9 @@ which deploys the PR's HEAD commit to the preview environment:
 - **Worker:** `marathon-lfg-preview` (auto-named from `[env.preview]`
   in `wrangler.jsonc`)
 - **D1:** `marathon-lfg-db-preview` (UUID `361ca148-8c00-4a7a-af66-f7680ec46959`)
-- **Bungie app:** **52138** (separate from prod's 52137 — see below)
+- **Bungie app:** **52148** (separate from prod's 52137 — see below)
 - **Bungie redirect URI:** `https://preview.runneruplink.net/api/auth/callback`
-  registered on app 52138.
+  registered on app 52148.
 
 The preview env is **shared across all open PRs**. The latest pushed
 PR overwrites whatever was there. To re-roll back to your PR's preview,
@@ -198,7 +198,7 @@ Bungie apps, each with its own `client_id` and API key. Mapping:
 | Env     | Bungie app | client_id | Redirect URL                                         |
 | ------- | ---------- | --------- | ---------------------------------------------------- |
 | Prod    | 52137      | 52137     | `https://runneruplink.net/api/auth/callback`         |
-| Preview | 52138      | 52138     | `https://preview.runneruplink.net/api/auth/callback` |
+| Preview | 52148      | 52148     | `https://preview.runneruplink.net/api/auth/callback` |
 
 The preview app's API key is stored as a **separate GitHub secret**
 (`BUNGIE_API_KEY_PREVIEW`) and uploaded to the preview Worker under
@@ -209,7 +209,7 @@ Add **one extra GH secret** at Settings → Secrets and variables → Actions:
 
 | Secret                   | Value                                          |
 | ------------------------ | ---------------------------------------------- |
-| `BUNGIE_API_KEY_PREVIEW` | API key from Bungie app **52138** (preview)    |
+| `BUNGIE_API_KEY_PREVIEW` | API key from Bungie app **52148** (preview)    |
 
 ### Scheduled cleanup
 

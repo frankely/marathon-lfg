@@ -60,7 +60,7 @@ jobs:
 
       - name: Sync Worker secrets to preview env from GitHub
         env:
-          # Preview uses a SEPARATE Bungie app (52138) from prod (52137)
+          # Preview uses a SEPARATE Bungie app (52148) from prod (52137)
           # because Bungie only accepts one redirect URL per app. The
           # preview app's API key is stored under a different GH secret
           # name to avoid clobbering the prod key, but it's uploaded to
@@ -72,7 +72,7 @@ jobs:
           if [ -z "$BUNGIE_API_KEY_PREVIEW" ]; then
             echo "::error::BUNGIE_API_KEY_PREVIEW GitHub secret is not set."
             echo "::error::Add it at Settings → Secrets and variables → Actions."
-            echo "::error::Value: API key from Bungie app 52138 (the preview app)."
+            echo "::error::Value: API key from Bungie app 52148 (the preview app)."
             exit 1
           fi
           if [ -z "$CRON_SECRET" ]; then

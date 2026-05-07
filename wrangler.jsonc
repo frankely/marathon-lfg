@@ -34,7 +34,7 @@
   // exposed at preview.runneruplink.net via a custom-domain route.
   // Deployed by .github/workflows/preview.yml on every PR push.
   //
-  // BUNGIE APP: uses a separate Bungie app (52138) from prod (52137).
+  // BUNGIE APP: uses a separate Bungie app (52148) from prod (52137).
   // Bungie's app config only accepts one redirect URL, so we can't
   // register both prod and preview on the same app. The two apps
   // have independent API keys — the preview key is stored as a
@@ -56,7 +56,7 @@
         }
       ],
       "vars": {
-        "BUNGIE_CLIENT_ID": "52138",
+        "BUNGIE_CLIENT_ID": "52148",
         "BUNGIE_REDIRECT_URI": "https://preview.runneruplink.net/api/auth/callback"
       }
     }
