@@ -183,10 +183,13 @@ export default function TermsPage() {
         <Section title="Contact">
           <p>
             For questions about these terms, content removal requests, or
-            responsible-disclosure security reports, contact:{" "}
-            <span className="font-mono text-foreground">
-              [contact email — TBD]
-            </span>
+            responsible-disclosure security reports, email{" "}
+            <a
+              href="mailto:rook.doe@runneruplink.net"
+              className="font-mono text-accent hover:text-accent-strong"
+            >
+              rook.doe@runneruplink.net
+            </a>
             .
           </p>
         </Section>

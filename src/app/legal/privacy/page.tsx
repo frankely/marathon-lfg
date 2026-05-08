@@ -233,10 +233,13 @@ export default function PrivacyPolicyPage() {
             ID immediately and irreversibly.
           </p>
           <p>
-            For other questions about this policy or your data, contact:{" "}
-            <span className="font-mono text-foreground">
-              [contact email — TBD]
-            </span>
+            For other questions about this policy or your data, email{" "}
+            <a
+              href="mailto:rook.doe@runneruplink.net"
+              className="font-mono text-accent hover:text-accent-strong"
+            >
+              rook.doe@runneruplink.net
+            </a>
             . See{" "}
             <Link
               href="/legal/terms"
