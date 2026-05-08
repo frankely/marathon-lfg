@@ -19,6 +19,25 @@ export class BungieAuthError extends Error {
   }
 }
 
+/**
+ * Token endpoint rejected our authorization_code. Bungie returns this as
+ * 400 with body { error: "invalid_grant", error_description:
+ * "AuthorizationCodeInvalid" }. Single-use OAuth codes mean the most
+ * common trigger is the URL being fetched a second time — by a browser
+ * refresh, back button, or (on a fresh / Safe-Browsing-flagged domain)
+ * Chrome's scanner pre-fetching the URL before the user clicks through.
+ *
+ * Callback should handle this gracefully — if the user already has session
+ * cookies the first exchange succeeded and we redirect to the app; if not,
+ * restart the OAuth flow with a fresh code rather than dumping the error.
+ */
+export class BungieAuthorizationCodeInvalidError extends Error {
+  constructor() {
+    super("Bungie authorization code already used or expired");
+    this.name = "BungieAuthorizationCodeInvalidError";
+  }
+}
+
 export type BungieTokenResponse = {
   access_token: string;
   token_type: "Bearer";
@@ -80,6 +99,24 @@ export async function exchangeCodeForToken(code: string): Promise<BungieTokenRes
 
   if (!res.ok) {
     const text = await res.text();
+    // Detect the single-use-code-already-consumed / expired-code case so
+    // the callback can recover gracefully instead of rendering a generic
+    // 400 error to the user.
+    try {
+      const parsed = JSON.parse(text) as {
+        error?: string;
+        error_description?: string;
+      };
+      if (
+        parsed.error === "invalid_grant" ||
+        parsed.error_description === "AuthorizationCodeInvalid"
+      ) {
+        throw new BungieAuthorizationCodeInvalidError();
+      }
+    } catch (e) {
+      // If the body wasn't JSON, fall through to the generic error below.
+      if (e instanceof BungieAuthorizationCodeInvalidError) throw e;
+    }
     throw new Error(`Bungie token exchange failed (${res.status}): ${text}`);
   }
 

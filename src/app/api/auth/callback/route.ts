@@ -1,6 +1,11 @@
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
-import { COOKIE, exchangeCodeForToken, getCurrentUser } from "@/lib/bungie";
+import {
+  BungieAuthorizationCodeInvalidError,
+  COOKIE,
+  exchangeCodeForToken,
+  getCurrentUser,
+} from "@/lib/bungie";
 import { setIdentityCookie } from "@/lib/session";
 import { logError, logInfo, logWarn } from "@/lib/log";
 
@@ -31,6 +36,26 @@ export async function GET(request: NextRequest) {
   try {
     token = await exchangeCodeForToken(code);
   } catch (e) {
+    if (e instanceof BungieAuthorizationCodeInvalidError) {
+      // Code was single-use-rejected by Bungie. Most common cause on a
+      // fresh domain is Chrome's Safe Browsing scanner pre-fetching the
+      // callback URL before the human got there, consuming the code in
+      // the process. Other causes: browser refresh, back button after a
+      // first successful exchange.
+      //
+      // Recovery:
+      //  - If the user already has session cookies (the first attempt
+      //    succeeded for them), they're authed — just send them onward.
+      //  - If not, kick off a fresh OAuth flow rather than dumping the
+      //    error.
+      logWarn("oauth_callback_code_already_used", {
+        hasSession: Boolean(cookieStore.get(COOKIE.access)?.value),
+      });
+      if (cookieStore.get(COOKIE.access)?.value) {
+        return redirectAfterAuth(request);
+      }
+      return NextResponse.redirect(new URL("/api/auth/login", request.nextUrl.origin));
+    }
     logError("oauth_token_exchange_failed", e);
     const message = e instanceof Error ? e.message : "token_exchange_failed";
     return redirectAfterAuth(request, { error: message });
