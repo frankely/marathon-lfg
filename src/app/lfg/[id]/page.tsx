@@ -73,7 +73,7 @@ export default async function LfgDetailPage({ params }: { params: Params }) {
   const canInitiate = isHost && lfg.status === "OPEN" && guests.length > 0;
 
   return (
-    <main className="relative flex flex-1 flex-col">
+    <main id="main" tabIndex={-1} className="relative flex flex-1 flex-col">
       <AutoRefresh enabled={lfg.status === "OPEN"} intervalMs={5000} />
       <div className="grid-bg absolute inset-0 opacity-40" aria-hidden />
 

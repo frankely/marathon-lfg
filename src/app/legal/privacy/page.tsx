@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="relative flex flex-1 flex-col">
+    <main id="main" tabIndex={-1} className="relative flex flex-1 flex-col">
       <div className="grid-bg absolute inset-0 opacity-30" aria-hidden />
 
       <header className="relative z-10 border-b border-line/80 bg-background/40 backdrop-blur">
@@ -221,13 +221,33 @@ export default function PrivacyPolicyPage() {
 
         <Section title="Contact">
           <p>
-            This is a fan project run by an individual. For questions or
-            data requests, the best path is to file an issue on the project
-            repository (see{" "}
-            <Link href="/legal/terms" className="text-accent hover:text-accent-strong">
+            This is a fan project run by an individual. The fastest way to
+            exercise your right to deletion is the self-service flow at{" "}
+            <Link
+              href="/account/delete"
+              className="text-accent hover:text-accent-strong"
+            >
+              /account/delete
+            </Link>
+            {" "}— it removes everything tied to your bungie.net membership
+            ID immediately and irreversibly.
+          </p>
+          <p>
+            For other questions about this policy or your data, email{" "}
+            <a
+              href="mailto:rook.doe@runneruplink.net"
+              className="font-mono text-accent hover:text-accent-strong"
+            >
+              rook.doe@runneruplink.net
+            </a>
+            . See{" "}
+            <Link
+              href="/legal/terms"
+              className="text-accent hover:text-accent-strong"
+            >
               terms
             </Link>{" "}
-            for the unaffiliated-with-Bungie disclaimer).
+            for the unaffiliated-with-Bungie disclaimer.
           </p>
         </Section>
       </section>

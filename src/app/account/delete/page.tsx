@@ -20,7 +20,7 @@ export default async function DeleteAccountPage({
   const counts = await countUserData(session.membershipId);
 
   return (
-    <main className="relative flex flex-1 flex-col">
+    <main id="main" tabIndex={-1} className="relative flex flex-1 flex-col">
       <div className="grid-bg absolute inset-0 opacity-30" aria-hidden />
 
       <header className="relative z-10 border-b border-line/80 bg-background/40 backdrop-blur">
@@ -117,7 +117,7 @@ export default async function DeleteAccountPage({
               autoComplete="off"
               spellCheck={false}
               placeholder="DELETE MY DATA"
-              className="border border-line bg-background px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted focus:border-danger focus:outline-none"
+              className="border border-line bg-background px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted focus:border-danger focus:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             />
           </div>
           <div className="flex flex-wrap items-center gap-3">

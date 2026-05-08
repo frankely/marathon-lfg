@@ -74,7 +74,7 @@ export default async function RunnerPage({
   const globalCode = bn.cachedBungieGlobalDisplayNameCode;
 
   return (
-    <main className="relative flex flex-1 flex-col">
+    <main id="main" tabIndex={-1} className="relative flex flex-1 flex-col">
       <div className="grid-bg absolute inset-0 opacity-40" aria-hidden />
 
       <header className="relative z-10 border-b border-line/80 bg-background/40 backdrop-blur">

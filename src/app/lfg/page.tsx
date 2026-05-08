@@ -45,7 +45,7 @@ export default async function LfgBoard({
   const initiated = sizeFiltered.filter((l) => l.status === "INITIATED");
 
   return (
-    <main className="relative flex flex-1 flex-col">
+    <main id="main" tabIndex={-1} className="relative flex flex-1 flex-col">
       {/* Live updates so a host sees joins arrive without refreshing. */}
       <AutoRefresh intervalMs={10000} />
       <div className="grid-bg absolute inset-0 opacity-40" aria-hidden />
