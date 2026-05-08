@@ -14,7 +14,7 @@ export default async function Home({
   const { deleted } = await searchParams;
 
   return (
-    <main className="relative flex flex-1 flex-col">
+    <main id="main" tabIndex={-1} className="relative flex flex-1 flex-col">
       <div className="grid-bg absolute inset-0 opacity-60" aria-hidden />
       {deleted && (
         <div className="relative z-20 border-b border-signal/40 bg-signal/10">

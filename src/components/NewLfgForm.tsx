@@ -114,7 +114,7 @@ export default function NewLfgForm({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Trio infil — Dire Marsh sweep"
-            className="border border-line bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
+            className="border border-line bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           />
         </div>
 
@@ -142,7 +142,7 @@ export default function NewLfgForm({
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Mic preferred. Stealth shells. Faction contracts welcome."
-            className="resize-none border border-line bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
+            className="resize-none border border-line bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           />
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
             <span className="mr-1 font-mono text-[10px] tracking-hud text-muted">

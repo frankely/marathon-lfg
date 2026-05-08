@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="relative flex flex-1 flex-col">
+    <main id="main" tabIndex={-1} className="relative flex flex-1 flex-col">
       <div className="grid-bg absolute inset-0 opacity-30" aria-hidden />
 
       <header className="relative z-10 border-b border-line/80 bg-background/40 backdrop-blur">
@@ -183,8 +183,11 @@ export default function TermsPage() {
         <Section title="Contact">
           <p>
             For questions about these terms, content removal requests, or
-            responsible-disclosure security reports, file an issue on the
-            project&apos;s GitHub repository.
+            responsible-disclosure security reports, contact:{" "}
+            <span className="font-mono text-foreground">
+              [contact email — TBD]
+            </span>
+            .
           </p>
         </Section>
       </section>
